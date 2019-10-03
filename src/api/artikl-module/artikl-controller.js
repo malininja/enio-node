@@ -49,7 +49,23 @@ const response = {
   rows: pdvs,
 };
 
+function getFilter(filters) {
+  let rules;
+
+  if (filters) {
+    ({ rules } = JSON.parse(filters));
+  }
+
+  console.log(rules);
+  // field = field name, data = filter data
+  return rules;
+}
 function getAll(req, res, next) {
+  // rows = no of rows per page, page = page number, sidx = sort field, sord = asc/desc
+  const { rows, page, sidx, sord, filters } = req.query;
+
+  getFilter(filters);
+
   res.send(response);
   return next();
 }

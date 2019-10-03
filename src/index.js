@@ -1,6 +1,7 @@
 const http = require("http");
 const express = require("express");
-const artiklRouter = require("./api/artikl-module");
+const apiRouter = require("./api");
+const homeRouter = require("./home-router");
 const path = require('path');
 
 const app = express();
@@ -12,13 +13,9 @@ app.set("views", __dirname + "/views");
 
 app.use(express.static(path.join(__dirname, 'static')));
 
-app.get('/home', function (req, res) {
-  res.render('home/index', { prop: "glupi prop" });
-});
+app.use('/home', homeRouter);
+app.use("/api", apiRouter);
 
-app.use("/api/pdvs", artiklRouter);
-
-app.get("/home", (req, res) => res.render(""))
 server.listen(port, () => {
   console.log(`Server slusa na ${port}`);
 });
