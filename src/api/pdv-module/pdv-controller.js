@@ -1,3 +1,14 @@
+var knex = require('knex')({
+  client: 'pg',
+  version: '10.10',
+  connection: {
+    host : '127.0.0.1',
+    user : 'postgres',
+    password : '1234',
+    database : 'enio_node'
+  }
+});
+
 
 const pdvs = [{
   PdvId: 1,
@@ -60,7 +71,10 @@ function getFilter(filters) {
   // field = field name, data = filter data
   return rules;
 }
-function getAll(req, res, next) {
+
+async function getAll(req, res, next) {
+  var pdvs = await knex("Pdv");
+
   // rows = no of rows per page, page = page number, sidx = sort field, sord = asc/desc
   const { rows, page, sidx, sord, filters } = req.query;
 

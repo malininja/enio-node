@@ -1,8 +1,8 @@
 const express = require("express");
-const artiklController = require("./artikl-controller");
+const controller = require("./pdv-controller");
 
 const apiRouter = new express.Router();
 
-apiRouter.get("", artiklController.getAll);
+apiRouter.get("", controller.getAll);
 
 module.exports = apiRouter;

@@ -1,8 +1,8 @@
 const express = require("express");
-const artiklRouter = require("./artikl-module");
+const pdvRouter = require("./pdv-module");
 
 const apiRouter = new express.Router();
 
-apiRouter.use("/pdvs", artiklRouter);
+apiRouter.use("/pdvs", pdvRouter);
 
 module.exports = apiRouter;
