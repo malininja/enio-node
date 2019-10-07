@@ -2,13 +2,16 @@ var knex = require('knex')({
   client: 'pg',
   version: '10.10',
   connection: {
-    host : '127.0.0.1',
-    user : 'postgres',
-    password : '1234',
-    database : 'enio_node'
+    host: '127.0.0.1',
+    user: 'postgres',
+    password: '1234',
+    database: 'enio_node',
   }
 });
 
+knex.on('query', function (queryData) {
+  console.log(queryData.sql);
+});
 
 const pdvs = [{
   PdvId: 1,
@@ -62,23 +65,28 @@ const response = {
 
 function getFilter(filters) {
   let rules;
-
+  let builder;
   if (filters) {
     ({ rules } = JSON.parse(filters));
+    builder = queryBuilder => { 
+      rules.forEach(rule => { 
+        queryBuilder = queryBuilder.andWhere(rule.field, "like", `${rule.data}%`);
+      });
+    };
   }
 
-  console.log(rules);
   // field = field name, data = filter data
-  return rules;
+  return builder;
 }
 
 async function getAll(req, res, next) {
-  var pdvs = await knex("Pdv");
-
   // rows = no of rows per page, page = page number, sidx = sort field, sord = asc/desc
   const { rows, page, sidx, sord, filters } = req.query;
 
-  getFilter(filters);
+  const builder = getFilter(filters);
+
+  const count = (await knex("Pdv").count())[0].count;
+  const pdvs = builder ? await knex("Pdv").modify(builder) : await knex("Pdv");
 
   res.send(response);
   return next();
