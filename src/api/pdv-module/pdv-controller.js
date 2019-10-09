@@ -13,63 +13,13 @@ knex.on('query', function (queryData) {
   console.log(queryData.sql);
 });
 
-const pdvs = [{
-  PdvId: 1,
-  Naziv: "prvi pdv",
-  Stopa: 22,
-}, {
-  PdvId: 2,
-  Naziv: "zadnji pdv",
-  Stopa: 25,
-}, {
-  PdvId: 3,
-  Naziv: "zadnji pdv",
-  Stopa: 25,
-}, {
-  PdvId: 4,
-  Naziv: "zadnji pdv",
-  Stopa: 25,
-}, {
-  PdvId: 5,
-  Naziv: "zadnji pdv",
-  Stopa: 25,
-}, {
-  PdvId: 6,
-  Naziv: "zadnji pdv",
-  Stopa: 25,
-}, {
-  PdvId: 7,
-  Naziv: "zadnji pdv",
-  Stopa: 25,
-}, {
-  PdvId: 8,
-  Naziv: "zadnji pdv",
-  Stopa: 25,
-}, {
-  PdvId: 9,
-  Naziv: "zadnji pdv",
-  Stopa: 25,
-}, {
-  PdvId: 10,
-  Naziv: "zadnji pdv",
-  Stopa: 25,
-}
-];
-
-const response = {
-  page: 2,
-  total: 4,
-  records: 36,
-  rows: pdvs,
-};
-
 function getFilter(filters) {
   let rules;
   let builder;
   if (filters) {
     ({ rules } = JSON.parse(filters));
-    builder = queryBuilder => { 
-      rules.forEach(rule => { 
+    builder = queryBuilder => {
+      rules.forEach(rule => {
         queryBuilder = queryBuilder.andWhere(rule.field, "like", `${rule.data}%`);
       });
     };
@@ -79,16 +29,36 @@ function getFilter(filters) {
   return builder;
 }
 
+function getResponse(pageSize, pageNo, data, count) {
+  return {
+    page: pageNo,
+    total: Math.ceil(count / pageSize),
+    records: count,
+    rows: data,
+  };
+}
+
 async function getAll(req, res, next) {
   // rows = no of rows per page, page = page number, sidx = sort field, sord = asc/desc
   const { rows, page, sidx, sord, filters } = req.query;
+  const pageSize = parseInt(rows);
+  const pageNo = parseInt(page);
+  const offset = pageSize * (pageNo - 1);
 
   const builder = getFilter(filters);
 
-  const count = (await knex("Pdv").count())[0].count;
-  const pdvs = builder ? await knex("Pdv").modify(builder) : await knex("Pdv");
+  let countPromise = knex("Pdv");
+  if (builder) countPromise = countPromise.where(builder);
+  countPromise = countPromise.count();
 
-  res.send(response);
+  let pdvsPromise = knex("Pdv");
+  if (builder) pdvsPromise = pdvsPromise.where(builder);
+  pdvsPromise.limit(pageSize).offset(offset);
+
+  const [count, pdvs] = await Promise.all([countPromise, pdvsPromise]);
+
+  console.log("pdvs count=", pdvs.length, "count", count);
+  res.send(getResponse(pageSize, pageNo, pdvs, count[0].count));
   return next();
 }
 
