@@ -13,19 +13,19 @@ knex.on('query', function (queryData) {
   console.log(queryData.sql);
 });
 
-function getFilter(filters) {
+function getBuilder(filters) {
   let rules;
   let builder;
-  if (filters) {
-    ({ rules } = JSON.parse(filters));
-    builder = queryBuilder => {
+  builder = queryBuilder => {
+    if (filters) {
+      ({ rules } = JSON.parse(filters));
+
       rules.forEach(rule => {
         queryBuilder = queryBuilder.andWhere(rule.field, "like", `${rule.data}%`);
       });
-    };
-  }
+    }
+  };
 
-  // field = field name, data = filter data
   return builder;
 }
 
@@ -45,14 +45,15 @@ async function getAll(req, res, next) {
   const pageNo = parseInt(page);
   const offset = pageSize * (pageNo - 1);
 
-  const builder = getFilter(filters);
+  const builder = getBuilder(filters);
 
   let countPromise = knex("Pdv");
-  if (builder) countPromise = countPromise.where(builder);
+  countPromise = countPromise.where(builder);
   countPromise = countPromise.count();
 
   let pdvsPromise = knex("Pdv");
-  if (builder) pdvsPromise = pdvsPromise.where(builder);
+  pdvsPromise = pdvsPromise.where(builder);
+  if (sidx) pdvsPromise.orderBy(sidx, sord);
   pdvsPromise.limit(pageSize).offset(offset);
 
   const [count, pdvs] = await Promise.all([countPromise, pdvsPromise]);
@@ -62,4 +63,42 @@ async function getAll(req, res, next) {
   return next();
 }
 
-module.exports = { getAll };
+async function get(req, res, next) {
+  const { id } = req.params;
+
+  const pdvs = await knex("Pdv").where("PdvId", id);
+  let pdv = null;
+  if (pdvs.length === 1) pdv = pdvs[0];
+
+  res.send(pdv);
+  return next();
+}
+
+async function save(req, res, next) {
+  const { PdvId, Naziv, Stopa: stopaString, ConcurrencyGuid } = req.body;
+  const Stopa = parseFloat(stopaString.replace(".", "").replace(",", "."));
+
+  let pdv = 1;
+
+  if (PdvId) {
+    pdv = await knex("Pdv")
+      .where({ PdvId, ConcurrencyGuid })
+      .update(({ Naziv, Stopa, ConcurrencyGuid: (new Date()).getTime() }));
+  } else {
+    const id = (await knex.raw("select nextval('\"GenericSequence\"')")).rows[0].nextval;
+
+    await knex("Pdv").insert({
+      PdvId: id,
+      Naziv,
+      Stopa,
+      FirmaId: -1,
+      ConcurrencyGuid: (new Date()).getTime(),
+    });
+  }
+
+  console.log("output =", pdv);
+
+  res.send(pdv === 1);
+  return next();
+}
+module.exports = { getAll, get, save };

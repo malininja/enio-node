@@ -3,6 +3,6 @@ const pdvRouter = require("./pdv-module");
 
 const apiRouter = new express.Router();
 
-apiRouter.use("/pdvs", pdvRouter);
+apiRouter.use("/pdv", pdvRouter);
 
 module.exports = apiRouter;

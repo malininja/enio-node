@@ -1,8 +1,10 @@
 const express = require("express");
 const controller = require("./pdv-controller");
 
-const apiRouter = new express.Router();
+const router = new express.Router();
 
-apiRouter.get("", controller.getAll);
+router.get("", controller.getAll);
+router.get("/:id", controller.get);
+router.post("", controller.save);
 
-module.exports = apiRouter;
+module.exports = router;
