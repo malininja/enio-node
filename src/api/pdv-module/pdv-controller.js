@@ -1,33 +1,7 @@
-var knex = require('knex')({
-  client: 'pg',
-  version: '10.10',
-  connection: {
-    host: '127.0.0.1',
-    user: 'postgres',
-    password: '1234',
-    database: 'enio_node',
-  }
-});
-
-knex.on('query', function (queryData) {
-  console.log(queryData.sql);
-});
-
-function getBuilder(filters) {
-  let rules;
-  let builder;
-  builder = queryBuilder => {
-    if (filters) {
-      ({ rules } = JSON.parse(filters));
-
-      rules.forEach(rule => {
-        queryBuilder = queryBuilder.andWhere(rule.field, "like", `${rule.data}%`);
-      });
-    }
-  };
-
-  return builder;
-}
+const knex = require("../../configs/knex");
+const knexUtils = require("../../utils/knex");
+const numbers = require("../../utils/numbers");
+const jqGrid = require("../../utils/jqGrid");
 
 function getResponse(pageSize, pageNo, data, count) {
   return {
@@ -39,27 +13,16 @@ function getResponse(pageSize, pageNo, data, count) {
 }
 
 async function getAll(req, res, next) {
-  // rows = no of rows per page, page = page number, sidx = sort field, sord = asc/desc
-  const { rows, page, sidx, sord, filters } = req.query;
-  const pageSize = parseInt(rows);
-  const pageNo = parseInt(page);
-  const offset = pageSize * (pageNo - 1);
+  const { query } = req;
+  const { pageSize, offset } = jqGrid.getPagingData(query);
 
-  const builder = getBuilder(filters);
+  const builder = knexUtils.whereBuilder(query, { "Stopa": "numeric" });
 
-  let countPromise = knex("Pdv");
-  countPromise = countPromise.where(builder);
-  countPromise = countPromise.count();
-
-  let pdvsPromise = knex("Pdv");
-  pdvsPromise = pdvsPromise.where(builder);
-  if (sidx) pdvsPromise.orderBy(sidx, sord);
-  pdvsPromise.limit(pageSize).offset(offset);
-
+  let countPromise = knexUtils.getCount(knex, "Pdv", builder);
+  let pdvsPromise = knexUtils.getData(knex, query, "Pdv", builder, pageSize, offset);
   const [count, pdvs] = await Promise.all([countPromise, pdvsPromise]);
 
-  console.log("pdvs count=", pdvs.length, "count", count);
-  res.send(getResponse(pageSize, pageNo, pdvs, count[0].count));
+  res.send(jqGrid.getResponse(pdvs, count, query));
   return next();
 }
 
@@ -76,7 +39,7 @@ async function get(req, res, next) {
 
 async function save(req, res, next) {
   const { PdvId, Naziv, Stopa: stopaString, ConcurrencyGuid } = req.body;
-  const Stopa = parseFloat(stopaString.replace(".", "").replace(",", "."));
+  const Stopa = numbers.parseCurrency(stopaString);
 
   let pdv = 1;
 
@@ -85,7 +48,7 @@ async function save(req, res, next) {
       .where({ PdvId, ConcurrencyGuid })
       .update(({ Naziv, Stopa, ConcurrencyGuid: (new Date()).getTime() }));
   } else {
-    const id = (await knex.raw("select nextval('\"GenericSequence\"')")).rows[0].nextval;
+    const id = await knexUtils.getId(knex);
 
     await knex("Pdv").insert({
       PdvId: id,
