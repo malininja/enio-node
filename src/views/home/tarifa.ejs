@@ -1,0 +1,120 @@
+<%- include("header") -%>
+
+<div>
+    <h2>Lista tarifa</h2>
+
+    <input style="font-size: 130%;" type="button" value="Dodaj novu tarifu" onclick="openNewTarifaDialog();" />
+    <br /><br />
+
+    <table id="TarifaTable"></table>
+    <div id="TarifaTablePager"></div>
+    <br /><br />
+
+    <div id="TarifaInput" ng-app="enioApp">
+        <div id="divNgController" ng-controller="TarifaController">
+            <table>
+                <tr>
+                    <td>Naziv:</td>
+                    <td>
+                        <input ng-model="selectedTarifa.Naziv" />
+                    </td>
+                    <td>
+                        <span class="validation" name="RequiredField" ng-show="!validation.isNazivExist()"></span>
+                        <span class="validation" ng-show="!validation.isNazivValid()">Naziv ne može imati više od 100
+                            znakova.</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Tarifa:</td>
+                    <td>
+                        <input ng-model="selectedTarifa.Stopa" />
+                    </td>
+                    <td>
+                        <span class="validation" ng-show="!validation.isStopaValid()">Neispravna tarifna stopa.</span>
+                    </td>
+                </tr>
+                <tr ng-show="!isSelectedTarifaNew()">
+                    <td>Aktivna:</td>
+                    <td>
+                        <input type="checkbox" ng-model="selectedTarifa.IsActive" />
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+
+            <input type="button" value="Pohrani" ng-click="save()" />
+            <input type="button" value="Odustani" onclick="closeTarifaDialog()" />
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var ngControllerScope;
+
+    function getNgControllerScope() {
+        if (!ngControllerScope) {
+            ngControllerScope = angular.element($("#divNgController")).scope();
+        }
+
+        return ngControllerScope;
+    }
+
+    $("span[name=RequiredField]").text(enioNg.textResources.requiredField);
+
+    $("#TarifaInput").dialog({
+        modal: true,
+        width: "700px"
+    });
+
+    function closeTarifaDialog() {
+        $("#TarifaInput").dialog("close");
+    }
+
+    function openTarifaDialog() {
+        $("#TarifaInput").dialog("open");
+    }
+
+    function openNewTarifaDialog() {
+        var scope = getNgControllerScope();
+        scope.newTarifa();
+        openTarifaDialog();
+    }
+
+    $(document).on("TarifaIsSaved", function () {
+        closeTarifaDialog();
+        $("#TarifaTable").trigger("reloadGrid");
+    });
+
+    closeTarifaDialog();
+
+    $("#TarifaTable").jqGrid({
+        url: "/api/tarifa",
+        datatype: "json",
+        colNames: ["TarifaId", "Naziv", "Stopa", "IsActive"],
+        colModel: [
+            { name: "TarifaId", index: "TarifaId", hidden: true, width: 0 },
+            { name: "Naziv", index: "Naziv", width: 250, searchoptions: { clearSearch: false } },
+            {
+                name: "Stopa", index: "Stopa", width: 200, align: "right", formatter: "number", formatoptions: { decimalSeparator: ",", decimalPlaces: 2 },
+                searchoptions: { clearSearch: false }
+            },
+            {
+                name: "IsActive", index: "IsActive", width: 50, formatter: "select", editoptions: { value: "true:Da;false:Ne" }, align: "center", stype: "select",
+                searchoptions: { sopt: ["eq"], value: ":--;True:Da;False:Ne", clearSearch: false }
+            }
+        ],
+        pager: "#TarifaTablePager",
+        caption: "Lista tarifa",
+        onSelectRow: function (id) {
+            var rowData = $(this).getRowData(id);
+            var scope = getNgControllerScope();
+            scope.loadTarifa(rowData["TarifaId"]);
+            openTarifaDialog();
+        },
+        height: 'auto'
+    }).filterToolbar({ groupOp: "AND", stringResult: true, searchOnEnter: false });
+
+    $("#TarifaTable").jqGrid("navGrid", "#TarifaTablePager");
+</script>
+
+<%- include("footer") -%>

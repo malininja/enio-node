@@ -1,0 +1,139 @@
+<%- include("header") -%>
+
+<div>
+
+        <h2>Lista artikala</h2>
+    
+        <input style="font-size: 130%;" type="button" value="Dodaj novi artikl" onclick="openNewArtiklDialog();" />
+        <br /><br />
+    
+        <table id="ArtiklTable"></table>
+        <div id="ArtiklTablePager"></div>	
+        <br /><br />
+        
+        <div id="ArtiklInput" ng-app="enioApp">
+        <div id="divNgController" ng-controller="ArtiklController">
+            <table>
+                <tr>
+                    <td>Naziv:</td>
+                    <td>
+                        <input ng-model="selectedArtikl.Naziv" />
+                    </td>
+                    <td>
+                        <span class="validation" name="RequiredField" ng-show="!validation.isNazivExist()"></span>
+                        <span class="validation" ng-show="!validation.isNazivValid()">Naziv ne može imati više od 100 znakova</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Jedinica mjere:</td>
+                    <td>
+                        <input ng-model="selectedArtikl.Jm" />
+                    </td>
+                    <td>
+                        
+                    </td>
+                </tr>
+                <tr>
+                    <td>Pdv:</td>
+                    <td>
+                        <select ng-model="selectedArtikl.PdvId"
+                            ng-options="pdv.PdvId as pdv.Naziv for pdv in pdvCollection"></select>
+                    </td>
+                    <td>
+                        <span class="validation" name="RequiredField" ng-show="!validation.isPdvExist()"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Cijena:</td>
+                    <td>
+                        <input ng-model="selectedArtikl.Cijena" />
+                    </td>
+                    <td>
+                        <span class="validation" name="RequiredField" ng-show="!validation.isCijenaExist()"></span>
+                        <span class="validation" ng-show="!validation.isCijenaValid()">Neispravna cijena</span>
+                    </td>
+                </tr>
+                <tr id="tdAktivan" ng-show="!isSelectedArtiklNew()">
+                    <td>Aktivan:</td>
+                    <td>
+                        <input type="checkbox" ng-model="selectedArtikl.IsActive" />
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+            <input type="button" value="Pohrani" ng-click="save()" />
+            <input type="button" value="Odustani" onclick="closeArtiklDialog()" />
+    
+        </div>
+        </div>
+    </div>
+    
+    <script type="text/javascript">
+        var ngControllerScope;
+        
+        function getNgControllerScope() {
+            if (!ngControllerScope) {
+                ngControllerScope = angular.element($("#divNgController")).scope();
+            }
+            
+            return ngControllerScope;
+        }
+        
+        $("span[name=RequiredField]").text(enioNg.textResources.requiredField);
+        
+        $("#ArtiklInput").dialog({
+            modal: true,
+            width: "700px"
+        });
+        
+        function closeArtiklDialog() {
+            $("#ArtiklInput").dialog("close");
+        }
+        
+        function openArtiklDialog() {
+            $("#ArtiklInput").dialog("open");
+        }
+    
+        function openNewArtiklDialog() {
+            var scope = getNgControllerScope();
+            scope.newArtikl();
+            $("#ArtiklInput").dialog("open");
+        }
+    
+        $(document).on("ArtiklIsSaved", function () {
+            closeArtiklDialog();
+            $("#ArtiklTable").trigger("reloadGrid");
+        });
+        
+        closeArtiklDialog();
+        
+        $("#ArtiklTable").jqGrid({
+            url: "/api/artikl",
+            datatype: "json",
+            colNames: ["ArtiklId", "Naziv", "Jm", "Pdv", "Cijena", "Aktivan"],
+            colModel: [
+                { name: "ArtiklId", index: "ArtiklId", hidden: true, width: 0 },
+                { name: "Naziv", index: "Naziv", width: 250, searchoptions: { clearSearch: false } },
+                { name: "Jm", index: "Jm", width: 90, searchoptions: { clearSearch: false } },
+                { name: "PdvStopa", index: "PdvStopa", width: 90, sortable: false, align: "right", formatter: "number", formatoptions: { decimalSeparator: ",", decimalPlaces: 2 },
+                    searchoptions: { clearSearch: false } },
+                { name: "Cijena", index: "Cijena", width: 100, align: "right", formatter: "number", formatoptions: { decimalSeparator: ",", decimalPlaces: 2 }, 
+                    searchoptions: { clearSearch: false } },
+                { name: "IsActive", index: "IsActive", width: 50, formatter: 'select', editoptions: { value: 'true:Da;false:Ne'}, align: "center", stype: "select",
+                    searchoptions: { sopt: ["eq"], value: ":--;True:Da;False:Ne", clearSearch: false } }
+            ],
+            pager: "#ArtiklTablePager",
+            caption: "Lista artikala",
+            onSelectRow: function (id) {
+                var rowData = $(this).getRowData(id);
+                var scope = getNgControllerScope();
+                scope.loadArtikl(rowData["ArtiklId"]);
+                openArtiklDialog();
+            },
+            height: 'auto'
+        }).filterToolbar({ groupOp : 'AND', stringResult: true, searchOnEnter: false });
+        
+        $("#ArtiklTable").jqGrid("navGrid", "#ArtiklTablePager");
+    </script>
+
+<%- include("footer") -%>

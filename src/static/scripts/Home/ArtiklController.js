@@ -61,7 +61,7 @@ app.controller("ArtiklController", ["$scope", function ($scope) {
 
         if (pdvCollection) {
             var fn = function () {
-                $scope.pdvCollection = pdvCollection;
+                $scope.pdvCollection = pdvCollection.rows;
             }
 
             ninjaSoftware.angularjs.safeApply($scope, fn);

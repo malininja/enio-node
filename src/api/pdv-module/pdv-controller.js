@@ -2,21 +2,14 @@ const knex = require("../../configs/knex");
 const knexUtils = require("../../utils/knex");
 const numbers = require("../../utils/numbers");
 const jqGrid = require("../../utils/jqGrid");
-
-function getResponse(pageSize, pageNo, data, count) {
-  return {
-    page: pageNo,
-    total: Math.ceil(count / pageSize),
-    records: count,
-    rows: data,
-  };
-}
+const bl = require("../../utils/bl");
 
 async function getAll(req, res, next) {
   const { query } = req;
   const { pageSize, offset } = jqGrid.getPagingData(query);
 
-  const builder = knexUtils.whereBuilder(query, { "Stopa": "numeric" });
+  const firmaId = bl.getFirmaId(req);
+  const builder = knexUtils.whereBuilder("Pdv", firmaId, query, { "Stopa": "numeric" });
 
   let countPromise = knexUtils.getCount(knex, "Pdv", builder);
   let pdvsPromise = knexUtils.getData(knex, query, "Pdv", builder, pageSize, offset);
@@ -41,10 +34,10 @@ async function save(req, res, next) {
   const { PdvId, Naziv, Stopa: stopaString, ConcurrencyGuid } = req.body;
   const Stopa = numbers.parseCurrency(stopaString);
 
-  let pdv = 1;
+  let recordCount = 1;
 
   if (PdvId) {
-    pdv = await knex("Pdv")
+    recordCount = await knex("Pdv")
       .where({ PdvId, ConcurrencyGuid })
       .update(({ Naziv, Stopa, ConcurrencyGuid: (new Date()).getTime() }));
   } else {
@@ -54,14 +47,12 @@ async function save(req, res, next) {
       PdvId: id,
       Naziv,
       Stopa,
-      FirmaId: -1,
+      FirmaId: bl.getFirmaId(req),
       ConcurrencyGuid: (new Date()).getTime(),
     });
   }
 
-  console.log("output =", pdv);
-
-  res.send(pdv === 1);
+  res.send(recordCount === 1);
   return next();
 }
 module.exports = { getAll, get, save };

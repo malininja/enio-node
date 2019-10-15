@@ -4,12 +4,14 @@ async function getId(knex) {
   return (await knex.raw("select nextval('\"GenericSequence\"')")).rows[0].nextval;
 }
 
-function whereBuilder(query, fieldTypes) {
+function whereBuilder(tableName, firmaId, query, fieldTypes) {
   const { filters } = query;
 
   let rules;
   let builder;
-  builder = queryBuilder => {
+  builder = queryBuilder => {    
+    queryBuilder.andWhere(`${tableName}.FirmaId`, firmaId);
+
     if (filters) {
       ({ rules } = JSON.parse(filters));
 
@@ -18,9 +20,12 @@ function whereBuilder(query, fieldTypes) {
 
         if (fieldTypes && fieldTypes[field] === "numeric") {
           const parsed = numbers.parseCurrency(data);
-          queryBuilder = queryBuilder.andWhere(field, parsed);
+          queryBuilder.andWhere(field, parsed);
+        } else if (fieldTypes && fieldTypes[field] === "boolean") {
+          const parsed = numbers.parseBool(data);
+          queryBuilder.andWhere(field, parsed);
         } else {
-          queryBuilder = queryBuilder.andWhere(field, "like", `${data}%`);
+          queryBuilder.andWhere(field, "like", `${data}%`);
         }
       });
     }

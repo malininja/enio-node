@@ -1,7 +1,29 @@
 <html>
 <head>
-  <title>some title in header</title>
+  <title><%= title %></title>
   <%- include("styles") -%>
   <%- include("scripts") -%>
 </head>
 <body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="/Home/RacunList">Računi</a></li>
+                    <li><a href="/Home/Artikl">Artikl</a></li>
+                    <li><a href="/Home/Partner">Partner</a></li>
+                    <li><a href="/Home/Tarifa">Tarifa</a></li>
+                    <li><a href="/Home/Pdv">PDV</a></li>
+                    <li><a href="/Home/Config">Postavke</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">

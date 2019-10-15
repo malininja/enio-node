@@ -24,6 +24,7 @@ app.controller("ConfigController", ["$scope", function ($scope) {
 
             if (isSaved) {
                 $(document).trigger("ConfigIsSaved");
+                $scope.loadConfig();
             } else {
                 alert(enioNg.textResources.dataSaveError);
             }

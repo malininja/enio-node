@@ -1,5 +1,13 @@
 function parseCurrency(data) {
-  return parseFloat(data.replace(".", "").replace(",", "."));
+  return parseFloat(data.toString().replace(".", "").replace(",", "."));
 }
 
-module.exports = { parseCurrency };
+function parseBool(data) {
+  try {
+    return JSON.parse(data.toString().toLowerCase());
+  } catch (e) {
+    return false;
+  }
+}
+
+module.exports = { parseCurrency, parseBool };

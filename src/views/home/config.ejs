@@ -1,0 +1,60 @@
+  <%- include("header") -%>
+
+  <div ng-app="enioApp">
+        <div ng-controller="ConfigController">
+            <h3>Podaci o poduzeću</h3>
+            <table>
+                <tr>
+                    <td>Naziv</td>
+                    <td>
+                        <input ng-model="config.Naziv" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Adresa</td>
+                    <td>
+                        <input ng-model="config.Adresa" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Mjesto</td>
+                    <td>
+                        <input ng-model="config.Mjesto" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>OIB</td>
+                    <td>
+                        <input ng-model="config.Oib" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Žiro račun</td>
+                    <td>
+                        <input ng-model="config.Zr" />
+                    </td>
+                </tr>
+            </table>
+            
+            <h3>Programski parametri</h3>
+            <table>
+                <tr>
+                    <td>Aktivna godina</td>
+                    <td>
+                        <input ng-model="config.AktivnaGodina" />
+                    </td>
+                    <td>
+                        <span class="validation" ng-show="!validation.isAktivnaGodinaValid()">Neispravna godina</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        
+                    </td>
+                </tr>
+            </table>
+            <input value="Pohrani" type="button" ng-click="saveConfig()" />
+        </div>
+    </div>
+
+  <%- include("footer") -%>
