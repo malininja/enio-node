@@ -1,4 +1,4 @@
-const numbers = require("./numbers");
+const parsers = require("./type-parsers");
 
 async function getId(knex) {
   return (await knex.raw("select nextval('\"GenericSequence\"')")).rows[0].nextval;
@@ -19,10 +19,10 @@ function whereBuilder(tableName, firmaId, query, fieldTypes) {
         const { field, data } = rule;
 
         if (fieldTypes && fieldTypes[field] === "numeric") {
-          const parsed = numbers.parseCurrency(data);
+          const parsed = parsers.parseCurrency(data);
           queryBuilder.andWhere(field, parsed);
         } else if (fieldTypes && fieldTypes[field] === "boolean") {
-          const parsed = numbers.parseBool(data);
+          const parsed = parsers.parseBool(data);
           queryBuilder.andWhere(field, parsed);
         } else {
           queryBuilder.andWhere(field, "like", `${data}%`);
