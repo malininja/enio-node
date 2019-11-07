@@ -1,25 +1,5 @@
 const knex = require("../../configs/knex");
-const knexUtils = require("../../utils/knex");
-const jqGrid = require("../../utils/jqGrid");
 const bl = require("../../utils/bl");
-
-async function getAll(req, res, next) {
-  const { query } = req;
-  const { pageSize, offset } = jqGrid.getPagingData(query);
-
-  const builder = knexUtils.whereBuilder(query, { "Stopa": "numeric" });
-
-  let countPromise = knexUtils.getCount(knex, "Pdv", builder);
-  let pdvsPromise = knexUtils.getData(knex, query, "Pdv", builder, pageSize, offset);
-  const [count, pdvs] = await Promise.all([countPromise, pdvsPromise]);
-
-  res.send(jqGrid.getResponse(pdvs, count, query));
-  return next();
-}
-
-function GetFirmaId(req) {
-  return -1;
-}
 
 async function get(req, res, next) {
   const configs = await knex("Config").where("FirmaId", bl.getFirmaId(req));
@@ -40,4 +20,4 @@ async function save(req, res, next) {
   res.send(recordCount === 1);
   return next();
 }
-module.exports = { getAll, get, save };
+module.exports = { get, save };
