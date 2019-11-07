@@ -1,6 +1,6 @@
 const knex = require("../../configs/knex");
 const knexUtils = require("../../utils/knex");
-const numbers = require("../../utils/numbers");
+const typeParser = require("../../utils/type-parsers");
 const jqGrid = require("../../utils/jqGrid");
 const bl = require("../../utils/bl");
 
@@ -34,8 +34,8 @@ async function get(req, res, next) {
 async function save(req, res, next) {
   const { PartnerId, Adresa, ConcurrencyGuid, Mjesto, Naziv, Oib, Posta, Valuta: valutaString, IsActive: isActiveString } = req.body;
 
-  const Valuta = numbers.parseCurrency(valutaString);
-  const IsActive = numbers.parseBool(isActiveString);
+  const Valuta = typeParser.parseCurrency(valutaString);
+  const IsActive = typeParser.parseBool(isActiveString);
 
   let recordCount = 1;
 

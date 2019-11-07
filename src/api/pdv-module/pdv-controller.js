@@ -1,6 +1,6 @@
 const knex = require("../../configs/knex");
 const knexUtils = require("../../utils/knex");
-const numbers = require("../../utils/numbers");
+const typeParser = require("../../utils/type-parsers");
 const jqGrid = require("../../utils/jqGrid");
 const bl = require("../../utils/bl");
 
@@ -32,7 +32,7 @@ async function get(req, res, next) {
 
 async function save(req, res, next) {
   const { PdvId, Naziv, Stopa: stopaString, ConcurrencyGuid } = req.body;
-  const Stopa = numbers.parseCurrency(stopaString);
+  const Stopa = typeParser.parseCurrency(stopaString);
 
   let recordCount = 1;
 

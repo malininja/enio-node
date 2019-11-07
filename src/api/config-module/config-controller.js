@@ -22,7 +22,7 @@ function GetFirmaId(req) {
 }
 
 async function get(req, res, next) {
-  const configs = await knex("Config").where("ConfigId", bl.getFirmaId(req));
+  const configs = await knex("Config").where("FirmaId", bl.getFirmaId(req));
   let config = null;
   if (configs.length === 1) config = configs[0];
 
