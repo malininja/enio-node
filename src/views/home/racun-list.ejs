@@ -1,0 +1,120 @@
+<%- include("header") -%>
+
+<div ng-app="enioApp">
+    <div id="divNgController" ng-controller="ConfigController">
+        <h2>Lista računa za {{ config.AktivnaGodina }}. godinu</h2>
+    </div>
+</div>
+
+<input style="font-size: 130%;" type="button" value="Unos novog računa" onclick="window.location.href='/Home/RacunEdit'" />
+<input style="font-size: 130%;" type="button" value="Ispis računa" onclick="ispisRacuna();" />
+<input style="font-size: 130%;" type="button" value="Ispis liste računa" onclick="ispisListeRacuna();" />
+
+<br /><br />
+<span>Datum od:</span>
+<input id="datum-od" type="text" />
+<span>Datum do:</span>
+<input id="datum-do" type="text" />
+
+<table id="RacunTable"></table>
+<div id="RacunTablePager"></div>
+
+<script type="text/javascript">
+    Globalize.culture("hr");
+
+    var filters = "";
+    function setFilters(f) {
+        filters = f;
+    }
+
+    $("#RacunTable").jqGrid({
+        url: "/JsonService/GetRacunGlavaCollectionForPaging",
+        datatype: "json",
+        colNames: ["Id", "Broj", "Partner", "Datum", "Iznos", "Status"],
+        colModel: [
+            { name: "RacunGlavaId", index: "RacunGlavaId", hidden: true },
+            { name: "BrojRacuna", index: "BrojRacuna", width: 50, searchoptions: { clearSearch: false } },
+            { name: "Partner.Naziv", index: "Partner.Naziv", width: 200, searchoptions: { clearSearch: false } },
+            { name: "Datum", index: "Datum", width: 200, formatter: "date", formatoptions: { srcformat: "Y-m-d", newformat: "d.m.Y" }, search: false },
+            { name: "Iznos", index: "Iznos", width: 200, align: "right", formatter: "number", formatoptions: { decimalSeparator: ",", decimalPlaces: 2 }, search: false },
+            {
+                name: "Status.Name", index: "Status.Name", width: 200, stype: "select",
+                searchoptions: { sopt: ["eq"], value: ":--;1:Plaćen;2:Neplaćen;3:Storniran;4:Otpis;5:Blokada", clearSearch: false }
+            },
+        ],
+        pager: "#RacunTablePager",
+        caption: "Lista računa",
+        onSelectRow: function (id) {
+            var rowData = $(this).getRowData(id);
+            var racunGlavaId = rowData["RacunGlavaId"];
+            window.location.href = "/Home/RacunEdit?racunGlavaId=" + racunGlavaId;
+        },
+        height: 'auto'
+    }).filterToolbar({
+        groupOp: "AND",
+        stringResult: true,
+        searchOnEnter: false,
+        beforeSearch: function () {
+            var $grid = $('#RacunTable');
+            var postData = $grid.jqGrid('getGridParam', 'postData');
+            var filters = $.parseJSON(postData.filters);
+
+            addDateFilter("datum-od", filters, "ge");
+            addDateFilter("datum-do", filters, "le");
+
+            if (filters && filters.rules && filters.rules.length > 0) {
+                for (var i = 0; i < filters.rules.length; i++) {
+                    var rule = filters.rules[i];
+
+                    if (rule.field === "Status.Name") {
+                        rule.field = "StatusId";
+                    }
+                }
+
+                postData.filters = JSON.stringify(filters);
+                setFilters(postData.filters);
+            }
+        }
+    });;
+
+    function addDateFilter(dateField, filters, operator) {
+        var dateString = $("#" + dateField).val();
+
+        if (dateString) {
+            var date = Globalize.parseDate(dateString);
+
+            if (date) {
+                var param = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+                filters.rules.push({ field: "Datum", data: date, op: operator });
+            }
+        }
+    }
+
+    $(document).on("ConfigIsLoaded", function () {
+        ngControllerScope = angular.element($("#divNgController")).scope();
+
+        $("#datum-od, #datum-do").datepicker({
+            yearRange: ngControllerScope.config.AktivnaGodina + ":" + ngControllerScope.config.AktivnaGodina,
+            changeMonth: true,
+            changeYear: true,
+            onSelect: function (dateText) {
+                $("#RacunTable")[0].triggerToolbar();
+            }
+        });
+    });
+
+    $("#datum-od, #datum-do").change(function () {
+        $("#RacunTable")[0].triggerToolbar();
+    });
+
+    function ispisRacuna() {
+        window.open("/Home/RacunReportCollection?jqGridFilters=" + encodeURIComponent(filters));
+    }
+
+    function ispisListeRacuna() {
+        window.open("/Home/RacunReportCollectionAsList?jqGridFilters=" + encodeURIComponent(filters));
+    }
+</script>
+
+
+<%- include("footer") -%>

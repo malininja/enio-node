@@ -17,9 +17,9 @@ async function getAll(req, res, next) {
   artikliPromise.innerJoin("Pdv", "Artikl.PdvId", "Pdv.PdvId");
   artikliPromise.select("Artikl.*", "Pdv.Stopa as PdvStopa");
 
-  const [count, tarifs] = await Promise.all([countPromise, artikliPromise]);
+  const [count, artikli] = await Promise.all([countPromise, artikliPromise]);
 
-  res.send(jqGrid.getResponse(tarifs, count, query));
+  res.send(jqGrid.getResponse(artikli, count, query));
   return next();
 }
 
