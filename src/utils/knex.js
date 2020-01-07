@@ -4,13 +4,18 @@ async function getId(knex) {
   return (await knex.raw("select nextval('\"GenericSequence\"')")).rows[0].nextval;
 }
 
-function whereBuilder(tableName, firmaId, query, fieldTypes) {
-  const { filters } = query;
+function whereBuilder(additionalFilters, jqGridQuery, fieldTypes) {
+  const { filters } = jqGridQuery;
 
   let rules;
   let builder;
-  builder = queryBuilder => {    
-    queryBuilder.andWhere(`${tableName}.FirmaId`, firmaId);
+  builder = queryBuilder => {
+    additionalFilters.forEach(filter => {
+      const { field, operator, value } = filter;
+
+      if (operator) queryBuilder.andWhere(field, operator, value);
+      else queryBuilder.andWhere(field, value);
+    });
 
     if (filters) {
       ({ rules } = JSON.parse(filters));

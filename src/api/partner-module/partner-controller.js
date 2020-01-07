@@ -9,8 +9,9 @@ async function getAll(req, res, next) {
   const { pageSize, offset } = jqGrid.getPagingData(query);
 
   const firmaId = bl.getFirmaId(req);
+  const filters = [{ field: "Partner.FirmaId", value: firmaId }];
   const fieldTypes = { "Valuta": "numeric", "IsActive": "boolean" };
-  const builder = knexUtils.whereBuilder("Partner", firmaId, query, fieldTypes);
+  const builder = knexUtils.whereBuilder(filters, query, fieldTypes);
 
   let countPromise = knexUtils.getCount(knex, "Partner", builder);
   let tarifsPromise = knexUtils.getData(knex, query, "Partner", builder, pageSize, offset);

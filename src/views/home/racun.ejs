@@ -1,0 +1,181 @@
+<%- include("header") -%>
+
+<div id="RacunEdit">
+	<form ng-app="enioApp" ng-controller="RacunController" name="racunForm">
+	<table border="1">
+		<tbody>
+			<tr>
+				<td colspan="3">
+					<h2 ng-show="!racunGlava.RacunGlavaId" ><span>Unos novog računa</span></h2>
+					<h2 ng-show="racunGlava.RacunGlavaId" ><span>Račun br. {{ racunGlava.BrojRacuna }}/{{ racunGlava.Godina }}</span></h2>
+				</td>
+				<td colspan="2">
+					<input type="button" value="Pohrani" ng-click="save()" />
+				</td>
+				<td colspan="3">
+                    @Html.ActionLink("Ispis", "RacunReport", new { racunGlavaId = Request.Params["racunGlavaId"] }, new { target = "_blank" })
+				</td>
+			</tr>
+	        <tr>
+	            <td style="margin-left: 80px">
+	                <span >Partner:</span>
+	            </td>
+	            <td colspan="3">
+	 				<select ng-model="racunGlava.PartnerId"
+	 					ng-options="partner.PartnerId as partner.Naziv for partner in partnerCollection"
+	 					ng-change="onPartnerChange()"></select>
+	            </td>
+	            <td>
+	                <span>Datum:</span>
+	            </td>
+	            <td>
+	                <input ng-model="racunGlava.Datum" name="datum" ng-pattern="/^\d{1,2}\.\d{1,2}\.\d{4,4}$/" />
+	            </td>
+	            <td>
+	                <span>Tarifa:</span>
+	            </td>
+	            <td>
+	                <select ng-model="racunGlava.TarifaId"
+	                	ng-options="tarifa.TarifaId as tarifa.Naziv for tarifa in tarifaCollection"
+                        ng-change="onTarifaChange()"></select>
+	            </td>
+	        </tr>
+	        <tr>
+	            <td>
+	                <span>Mjesto rada:</span>
+	            </td>
+	            <td>
+	                <input ng-model="racunGlava.MjestoRadaNaziv" ng-maxlength="60" />
+	            </td>
+	            <td>
+	                <span>Adresa rada:</span>
+	            </td>
+	            <td>
+	                <input ng-model="racunGlava.MjestoRadaAdresa" ng-maxlength="60" />
+	            </td>
+	            <td>
+	                <span>Valuta:</span>
+	            </td>
+	            <td>
+	                <input ng-model="racunGlava.Valuta" ng-pattern="/^\d*$/" required="required" />
+	                <span> dana</span>
+	            </td>
+	            <td>
+	                <span>Status:</span>
+	            </td>
+	            <td>
+	                <select ng-model="racunGlava.StatusId"
+	                	ng-options="status.StatusId as status.Name for status in statusCollection"></select>
+	            </td>
+	        </tr>
+	        <tr>
+	            <td>
+	                Vrijeme:
+	            </td>
+	            <td>
+	                <input ng-model="racunGlava.Vrijeme" />
+	            </td>
+	            <td>Je PDV račun:</td>
+	            <td>
+	                <input type="checkbox" ng-model="racunGlava.JePdvRacun" />
+	            </td>
+	            <td colspan="5">
+	            </td>
+	        </tr>
+	        <tr>
+	            <td>Dodatak zaglavlju:</td>
+	            <td colspan="5">
+	                <textarea style="width: 800px" ng-model="racunGlava.Zaglavlje"></textarea>
+	            </td>        
+	            <td colspan="2">
+	            	<h2>
+	            		Ukupno: <span ng-bind="ukupniIznos"></span> kn
+	            	</h2>
+	            </td>
+	        </tr>
+		</tbody>
+	</table>
+    
+    <br />
+    <br />
+    
+	<table border="1" class="style2">
+		<tbody>
+			<tr>
+				<td rowspan="1" colspan="4">
+	                <span style="font-weight: bold">Unos nove stavke</span>
+				</td>
+	        </tr>
+	        <tr>
+	            <td>
+	                <span >Artikl</span></td>
+	            <td>
+	                <span >Količina</span></td>
+	            <td>
+	                <span >Cijena</span></td>
+	            <td rowspan="2">
+	                <input type="button" value="Unesi stavku" ng-click="addRacunStavka()" />
+	            </td>
+	        </tr>
+	        <tr>
+	            <td>
+	                <select style="width:250px;" ng-model="newRacunStavka.ArtiklId"
+	                	ng-options="artikl.ArtiklId as artikl.Naziv for artikl in artiklCollection"
+	                	ng-change="onArtiklChange()"></select>
+	            </td>
+	            <td>
+	                <input class="number" id="newStavkaKolicina" name="newStavkaKolicina" type="text" ng-model="newRacunStavka.Kolicina" ng-required="true" ng-pattern="/^[0-9]{1,8}(,{1}[0-9]{1,2})?$/" />
+	            </td>
+	            <td>
+	                <input class="number" name="newStavkaCijena" type="text" ng-model="newRacunStavka.Cijena" ng-required="true" ng-pattern="/^[0-9]{1,8}(,{1}[0-9]{1,2})?$/" />
+	            </td>
+	        </tr>
+	    </tbody>
+	</table>
+    
+    <table>
+    	<thead>
+    		<tr>
+    			<th>Artikl</th>
+    			<th>Naziv</th>
+    			<th style="text-align: center">Količina</th>
+    			<th style="text-align: center">Cijena</th>
+    			<th>PDV (%)</th>
+    			<th></th>
+    		</tr>
+    	</thead>
+    	<tbody>
+    		<tr ng-repeat="racunStavka in racunStavkaCollection">
+    			<td>{{ racunStavka.ArtiklId }}</td>
+    			<td>{{ racunStavka.Artikl.Naziv }}</td>
+    			<td>
+    				<input class="number" ng-model="racunStavka.Kolicina" ng-pattern="/^[-]?[0-9]{1,8}(,{1}[0-9]{2})?$/" ng-change="calculateTotal()" /> 
+    			</td>
+    			<td>
+    				<input class="number" ng-model="racunStavka.Cijena" ng-pattern="/^[0-9]{1,8}(,{1}[0-9]{2})?$/" ng-change="calculateTotal()" /> 
+    			</td>
+    			<td>{{ racunStavka.PdvPosto | number:2 }}</td>
+    			<td>
+    				<a href="javascript:" ng-click="deleteRacunStavka(racunStavka.Pozicija)">X</a>
+    			</td>
+    		</tr>
+    	</tbody>
+    </table>
+    </form>
+</div>
+
+<script type="text/javascript">
+	$(document).on("RacunControlerLoaded", function(event, scope) {
+		var racunGlavaId = ninjaSoftware.url.getParameterValue("racunGlavaId");
+		
+		if (racunGlavaId) {
+			scope.loadRacun(racunGlavaId);
+		}
+	});
+	
+	$(document).on("ArtiklChanged", function () {
+		$("#newStavkaKolicina").select();
+	});
+</script>
+
+<%- include("footer") -%>
