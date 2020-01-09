@@ -30,4 +30,16 @@ async function getAll(req, res, next) {
   return next();
 }
 
-module.exports = { getAll };
+async function saveInternal(glava, stavke) {
+
+}
+
+function save(req, res, next) {
+  const { glava, stavke } = req.body;
+  const firmaId = bl.getFirmaId(req);
+  
+  if (glava.RacunGlavaId) return patchInternal(firmaId, glava, stavke);
+  else saveInternal(firmaId, glava, stavke);
+}
+
+module.exports = { getAll, save };

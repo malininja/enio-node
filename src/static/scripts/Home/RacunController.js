@@ -41,8 +41,8 @@ app.controller("RacunController", ["$scope", function ($scope) {
     $scope.save = function () {
         if ($scope.validation.isValid()) {
             var racunGlavaId = enioNg.api.racun.save({
-                racunGlavaJson: JSON.stringify($scope.racunGlava),
-                racunStavkaCollectionJson: JSON.stringify($scope.racunStavkaCollection)
+                glava: $scope.racunGlava,
+                stavke: $scope.racunStavkaCollection,
             });
 
             if (racunGlavaId) {
@@ -61,7 +61,7 @@ app.controller("RacunController", ["$scope", function ($scope) {
 
         if (partnerCollection) {
             var fn = function () {
-                $scope.partnerCollection = partnerCollection;
+                $scope.partnerCollection = partnerCollection.rows;
             };
 
             ninjaSoftware.angularjs.safeApply($scope, fn);
@@ -75,9 +75,9 @@ app.controller("RacunController", ["$scope", function ($scope) {
 
         if (tarifaCollection) {
             var fn = function () {
-                if (tarifaCollection.length > 0) {
-                    $scope.tarifaCollection = tarifaCollection;
-                    $scope.racunGlava.TarifaId = tarifaCollection[0].TarifaId;
+                if (tarifaCollection.rows.length > 0) {
+                    $scope.tarifaCollection = tarifaCollection.rows;
+                    $scope.racunGlava.TarifaId = tarifaCollection.rows[0].TarifaId;
                 }
             };
 
@@ -88,17 +88,17 @@ app.controller("RacunController", ["$scope", function ($scope) {
     };
 
     _me.loadStatusCollection = function () {
-        var statusCollection = enioNg.api.status.getAll();
+        var fn = function () {
+            $scope.statusCollection = [
+                { Code: "Paid", Name: "Plaćen", StatusId: 1 },
+                { Code: "Unpaid", Name: "Neplaćen", StatusId: 2 },
+                { Code: "Cancelled", Name: "Storniran", StatusId: 3 },
+                { Code: "WriteOff", Name: "Otpis", StatusId: 4 },
+                { Code: "Blockade", Name: "Blokada", StatusId: 5 },
+            ];
+        };
 
-        if (statusCollection) {
-            var fn = function () {
-                $scope.statusCollection = statusCollection;
-            };
-
-            ninjaSoftware.angularjs.safeApply($scope, fn);
-        } else {
-            alert(enioNg.textResources.dataFetchError);
-        }
+        ninjaSoftware.angularjs.safeApply($scope, fn);
     };
 
     _me.loadArtiklCollection = function () {
@@ -106,7 +106,7 @@ app.controller("RacunController", ["$scope", function ($scope) {
 
         if (artiklCollection) {
             var fn = function () {
-                $scope.artiklCollection = artiklCollection;
+                $scope.artiklCollection = artiklCollection.rows;
             };
 
             ninjaSoftware.angularjs.safeApply($scope, fn);
@@ -119,7 +119,7 @@ app.controller("RacunController", ["$scope", function ($scope) {
         var pdvCollection = enioNg.api.pdv.getAll();
 
         if (pdvCollection) {
-            _me.pdvCollection = pdvCollection;
+            _me.pdvCollection = pdvCollection.rows;
         } else {
             alert(enioNg.textResources.dataFetchError);
         }
@@ -239,8 +239,8 @@ app.controller("RacunController", ["$scope", function ($scope) {
 
     $scope.addRacunStavka = function () {
         if (!$scope.newRacunStavka.ArtiklId ||
-			!$scope.racunForm.newStavkaKolicina.$valid ||
-			!$scope.racunForm.newStavkaCijena.$valid) {
+            !$scope.racunForm.newStavkaKolicina.$valid ||
+            !$scope.racunForm.newStavkaCijena.$valid) {
             //alert("nevalja!!!");
             return;
         }

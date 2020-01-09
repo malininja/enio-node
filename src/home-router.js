@@ -8,5 +8,6 @@ router.get("/partner", (req, res) => res.render("home/partner", { title: "Partne
 router.get("/artikl", (req, res) => res.render("home/artikl", { title: "Artikli" }));
 router.get("/config", (req, res) => res.render("home/config", { title: "Postavke" }));
 router.get("/racun-list", (req, res) => res.render("home/racun-list", { title: "Lista računa" }));
+router.get("/racun-edit", (req, res) => res.render("home/racun", { title: "Računnnnn" }));
 
 module.exports = router;

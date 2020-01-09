@@ -203,7 +203,7 @@ enioNg.api.racun.save = function (data) {
 	var racunGlavaId;
 
 	ninjaSoftware.ajaxHelper.postJson({
-		url: "/api/SaveRacun",
+		url: "/api/racun",
 		jsonObject: data,
 		success: function (result) {
 			if (result != null && result.IsSaved === true) {

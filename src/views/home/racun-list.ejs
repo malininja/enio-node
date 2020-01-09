@@ -6,7 +6,7 @@
     </div>
 </div>
 
-<input style="font-size: 130%;" type="button" value="Unos novog računa" onclick="window.location.href='/Home/RacunEdit'" />
+<input style="font-size: 130%;" type="button" value="Unos novog računa" onclick="window.location.href='/home/racun-edit'" />
 <input style="font-size: 130%;" type="button" value="Ispis računa" onclick="ispisRacuna();" />
 <input style="font-size: 130%;" type="button" value="Ispis liste računa" onclick="ispisListeRacuna();" />
 
@@ -47,7 +47,7 @@
         onSelectRow: function (id) {
             var rowData = $(this).getRowData(id);
             var racunGlavaId = rowData["RacunGlavaId"];
-            window.location.href = "/Home/RacunEdit?racunGlavaId=" + racunGlavaId;
+            window.location.href = "/Home/racun-edit?racunGlavaId=" + racunGlavaId;
         },
         height: 'auto'
     }).filterToolbar({
