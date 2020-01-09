@@ -1,6 +1,7 @@
+const knex = require("../configs/knex");
 const parsers = require("./type-parsers");
 
-async function getId(knex) {
+async function getId() {
   return (await knex.raw("select nextval('\"GenericSequence\"')")).rows[0].nextval;
 }
 

@@ -42,7 +42,7 @@ async function save(req, res, next) {
       .where({ PdvId, ConcurrencyGuid })
       .update(({ Naziv, Stopa, ConcurrencyGuid: (new Date()).getTime() }));
   } else {
-    const id = await knexUtils.getId(knex);
+    const id = await knexUtils.getId();
 
     await knex("Pdv").insert({
       PdvId: id,

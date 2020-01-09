@@ -3,6 +3,9 @@ const knexUtils = require("../../utils/knex");
 const typeParser = require("../../utils/type-parsers");
 const jqGrid = require("../../utils/jqGrid");
 const bl = require("../../utils/bl");
+const brojacRepository = require("../brojac-module/brojac-repository");
+const racunRepository = require("./racun-repository");
+const configRepository = require("../config-module/config-repository");
 
 async function getAll(req, res, next) {
   const { query } = req;
@@ -10,14 +13,14 @@ async function getAll(req, res, next) {
 
   const firmaId = bl.getFirmaId(req);
   const filters = [{ field: "RacunGlava.FirmaId", value: firmaId }];
-  
+
   const fieldTypes = { "BrojRacuna": "numeric", "StatusId": "numeric" };
   const builder = knexUtils.whereBuilder(filters, query, fieldTypes);
 
   let countPromise = knexUtils.getCount(knex, "RacunGlava", builder);
   let racunGlavePromise = knexUtils.getData(knex, query, "RacunGlava", builder, pageSize, offset);
   racunGlavePromise.innerJoin("Partner", "RacunGlava.PartnerId", "Partner.PartnerId");
-  racunGlavePromise.innerJoin("Config", join => { 
+  racunGlavePromise.innerJoin("Config", join => {
     join.on("RacunGlava.FirmaId", "Config.FirmaId")
       .andOn("RacunGlava.Godina", "Config.AktivnaGodina");
   });
@@ -30,16 +33,34 @@ async function getAll(req, res, next) {
   return next();
 }
 
-async function saveInternal(glava, stavke) {
+async function save(req, res, next) {
+  const trx = await knex.transaction();
 
-}
+  try {
+    const { glava, stavke } = req.body;
+    const firmaId = bl.getFirmaId(req);
 
-function save(req, res, next) {
-  const { glava, stavke } = req.body;
-  const firmaId = bl.getFirmaId(req);
-  
-  if (glava.RacunGlavaId) return patchInternal(firmaId, glava, stavke);
-  else saveInternal(firmaId, glava, stavke);
+    let id = glava.RacunGlavaId;
+
+    if (id) {
+      savedData = await racunRepository.update(trx, glava, stavke);
+    } else {
+      const config = await configRepository.get(firmaId);
+      const godina = config.AktivnaGodina;
+      glava.Godina = godina;
+      glava.BrojRacuna = await brojacRepository.sljedeciBroj(trx, firmaId, "racun", godina);
+      glava.FirmaId = firmaId;
+      id = await racunRepository.insert(trx, glava, stavke);
+    }
+
+    await trx.commit();
+    const racun = await racunRepository.get(id);
+    res.send(racun);
+    return next();
+  } catch (error) {
+    await trx.rollback();
+    return next(error);
+  }
 }
 
 module.exports = { getAll, save };

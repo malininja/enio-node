@@ -1,23 +1,28 @@
-const knex = require("../../configs/knex");
+const repository = require("./config-repository");
 const bl = require("../../utils/bl");
 
 async function get(req, res, next) {
-  const configs = await knex("Config").where("FirmaId", bl.getFirmaId(req));
-  let config = null;
-  if (configs.length === 1) config = configs[0];
+  try {
+    const firmaId = bl.getFirmaId(req);
+    const config = await repository.get(firmaId);
 
-  res.send(config);
-  return next();
+    if (!config) res.sendStatus(404);
+    else res.send(config);
+    return next();
+  } catch (error) {
+    return next(error);
+  }
 }
 
 async function save(req, res, next) {
-  const { Naziv, Adresa, Mjesto, Oib, Zr, AktivnaGodina, ConcurrencyGuid } = req.body;
-
-  let recordCount = await knex("Config")
-  .where({ FirmaId: bl.getFirmaId(req), ConcurrencyGuid })
-  .update(({ Naziv, Adresa, Mjesto, Oib, Zr, AktivnaGodina, ConcurrencyGuid: (new Date()).getTime() }));
-
-  res.send(recordCount === 1);
-  return next();
+  try {
+    const firmaId = bl.getFirmaId(req);
+    const recordCount = await repository.save(firmaId, req.body);
+    res.send(recordCount === 1);
+    return next();
+  } catch (error) {
+    return next(error);
+  }
 }
+
 module.exports = { get, save };

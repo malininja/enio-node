@@ -44,7 +44,7 @@ async function save(req, res, next) {
       .where({ TarifaId, ConcurrencyGuid })
       .update(({ Naziv, Stopa, IsActive, ConcurrencyGuid: (new Date()).getTime() }));
   } else {
-    const id = await knexUtils.getId(knex);
+    const id = await knexUtils.getId();
 
     await knex("Tarifa").insert({
       TarifaId: id,
