@@ -188,8 +188,7 @@ enioNg.api.racun.getById = function (id) {
 	var racun;
 
 	ninjaSoftware.ajaxHelper.getJson({
-		url: "/api/GetRacun",
-		data: { "racunGlavaId": id },
+		url: "/api/racun/" + id,
 		success: function (result) {
 			racun = result;
 		},

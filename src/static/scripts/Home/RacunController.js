@@ -90,11 +90,11 @@ app.controller("RacunController", ["$scope", function ($scope) {
     _me.loadStatusCollection = function () {
         var fn = function () {
             $scope.statusCollection = [
-                { Code: "Paid", Name: "Plaćen", StatusId: 1 },
-                { Code: "Unpaid", Name: "Neplaćen", StatusId: 2 },
-                { Code: "Cancelled", Name: "Storniran", StatusId: 3 },
-                { Code: "WriteOff", Name: "Otpis", StatusId: 4 },
-                { Code: "Blockade", Name: "Blokada", StatusId: 5 },
+                { Code: "Paid", Name: "Plaćen", StatusId: "1" },
+                { Code: "Unpaid", Name: "Neplaćen", StatusId: "2" },
+                { Code: "Cancelled", Name: "Storniran", StatusId: "3" },
+                { Code: "WriteOff", Name: "Otpis", StatusId: "4" },
+                { Code: "Blockade", Name: "Blokada", StatusId: "5" },
             ];
         };
 

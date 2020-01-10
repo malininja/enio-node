@@ -6,6 +6,21 @@ const bl = require("../../utils/bl");
 const brojacRepository = require("../brojac-module/brojac-repository");
 const racunRepository = require("./racun-repository");
 const configRepository = require("../config-module/config-repository");
+const tarifaRepository = require("../tarifa-module/tarifa-repository");
+
+async function get(req, res, next) {
+  try {
+    const { id } = req.params;
+    const racun = await racunRepository.get(id);
+
+    if (!racun) res.sendStatus(404);
+    else res.send(racun);
+    
+    return next();
+  } catch (error) {
+    return next(error);
+  }
+}
 
 async function getAll(req, res, next) {
   const { query } = req;
@@ -48,6 +63,8 @@ async function save(req, res, next) {
       const config = await configRepository.get(firmaId);
       const godina = config.AktivnaGodina;
       glava.Godina = godina;
+      const tarifa = await tarifaRepository.get(glava.TarifaId);
+      glava.TarifaStopa = tarifa.Stopa;
       glava.BrojRacuna = await brojacRepository.sljedeciBroj(trx, firmaId, "racun", godina);
       glava.FirmaId = firmaId;
       id = await racunRepository.insert(trx, glava, stavke);
@@ -63,4 +80,4 @@ async function save(req, res, next) {
   }
 }
 
-module.exports = { getAll, save };
+module.exports = { get, getAll, save };
