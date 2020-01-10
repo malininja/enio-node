@@ -15,7 +15,7 @@ async function get(req, res, next) {
 
     if (!racun) res.sendStatus(404);
     else res.send(racun);
-    
+
     return next();
   } catch (error) {
     return next(error);
@@ -62,17 +62,37 @@ async function save(req, res, next) {
     } else {
       const config = await configRepository.get(firmaId);
       const godina = config.AktivnaGodina;
+
+      const [tarifa, brojRacuna] = await Promise.all([
+        tarifaRepository.get(glava.TarifaId),
+        brojacRepository.sljedeciBroj(trx, firmaId, "racun", godina),
+      ]);
+
       glava.Godina = godina;
-      const tarifa = await tarifaRepository.get(glava.TarifaId);
       glava.TarifaStopa = tarifa.Stopa;
-      glava.BrojRacuna = await brojacRepository.sljedeciBroj(trx, firmaId, "racun", godina);
+      glava.BrojRacuna = brojRacuna;
       glava.FirmaId = firmaId;
+
+      stavke.forEach(stavka => {
+        delete stavka.$$hashKey;
+        delete stavka.Artikl;
+        stavka.Kolicina = parseFloat(stavka.Kolicina);
+        stavka.Cijena = parseFloat(stavka.Cijena);
+        stavka.PdvPosto = parseFloat(stavka.PdvPosto);
+        
+        const { Kolicina, Cijena, PdvPosto } = stavka;
+        // zaokruži na dvije decimale
+        stavka.TarifaIznos = Kolicina * Cijena * glava.TarifaStopa;
+        stavka.PdvIznos = (Kolicina * Cijena * stavka.TarifaIznos) * PdvPosto / 100;
+        stavka.Iznos = Kolicina * Cijena + stavka.TarifaIznos + stavka.PdvIznos;
+      });
+
       id = await racunRepository.insert(trx, glava, stavke);
+
     }
 
     await trx.commit();
-    const racun = await racunRepository.get(id);
-    res.send(racun);
+    res.send(id);
     return next();
   } catch (error) {
     await trx.rollback();

@@ -205,9 +205,7 @@ enioNg.api.racun.save = function (data) {
 		url: "/api/racun",
 		jsonObject: data,
 		success: function (result) {
-			if (result != null && result.IsSaved === true) {
-				racunGlavaId = result.RacunGlavaId;
-			}
+			racunGlavaId = result;
 		},
 		error: enioNg.api.errorFn
 	});

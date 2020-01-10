@@ -7,7 +7,7 @@ app.controller("RacunController", ["$scope", function ($scope) {
         Datum: dateString,
         Vrijeme: "12:00",
         JePdvRacun: true,
-        StatusId: 2
+        StatusId: "2"
     };
 
     $scope.newRacunStavka = {};
