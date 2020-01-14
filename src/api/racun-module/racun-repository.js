@@ -4,7 +4,8 @@ const knexUtils = require("../../utils/knex");
 async function get(id) {
   const glava = await knex("RacunGlava").where({ RacunGlavaId: id });
   if (!glava) return null;
-  return { RacunGlava: glava[0], RacunStavkaCollection: [] };
+  const stavke = await knex("RacunStavka").where({ RacunGlavaId: id });
+  return { RacunGlava: glava[0], RacunStavkaCollection: stavke };
 }
 
 async function insert(trx, glava, stavke) {

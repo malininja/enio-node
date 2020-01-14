@@ -68,6 +68,11 @@ async function save(req, res, next) {
         brojacRepository.sljedeciBroj(trx, firmaId, "racun", godina),
       ]);
 
+      const [dan, mjesec, godinaDatum] = glava.Datum.split(".");
+      glava.Datum = new Date(`${godinaDatum}-${mjesec}-${dan}`);
+
+      if (godina !== parseInt(godinaDatum)) throw new Error("Datum računa nije u aktivnoj godini.");
+
       glava.Godina = godina;
       glava.TarifaStopa = tarifa.Stopa;
       glava.BrojRacuna = brojRacuna;
@@ -76,14 +81,14 @@ async function save(req, res, next) {
       stavke.forEach(stavka => {
         delete stavka.$$hashKey;
         delete stavka.Artikl;
-        stavka.Kolicina = parseFloat(stavka.Kolicina);
-        stavka.Cijena = parseFloat(stavka.Cijena);
+        stavka.Kolicina = typeParser.parseCurrency(stavka.Kolicina);
+        stavka.Cijena = typeParser.parseCurrency(stavka.Cijena);
         stavka.PdvPosto = parseFloat(stavka.PdvPosto);
         
         const { Kolicina, Cijena, PdvPosto } = stavka;
         // zaokruži na dvije decimale
-        stavka.TarifaIznos = Kolicina * Cijena * glava.TarifaStopa;
-        stavka.PdvIznos = (Kolicina * Cijena * stavka.TarifaIznos) * PdvPosto / 100;
+        stavka.TarifaIznos = Kolicina * Cijena * glava.TarifaStopa / 100;
+        stavka.PdvIznos = (Kolicina * Cijena + stavka.TarifaIznos) * PdvPosto / 100;
         stavka.Iznos = Kolicina * Cijena + stavka.TarifaIznos + stavka.PdvIznos;
       });
 

@@ -47,7 +47,7 @@ app.controller("RacunController", ["$scope", function ($scope) {
 
             if (racunGlavaId) {
                 alert(enioNg.textResources.dataSaveSuccess);
-                window.location.href = "/Home/RacunEdit?racunGlavaId=" + racunGlavaId;
+                window.location.href = "/home/racun-edit?racunGlavaId=" + racunGlavaId;
             } else {
                 alert(enioNg.textResources.dataSaveError);
             }
