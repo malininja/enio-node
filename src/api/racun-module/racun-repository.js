@@ -20,7 +20,6 @@ async function insert(trx, glava, stavke) {
       stavka.RacunGlavaId = parseInt(id);
       stavka.ConcurrencyGuid = (new Date()).getTime();
       await trx("RacunStavka").insert(stavka);
-      return 5;
     };
 
     stavkePromises.push(prom());
@@ -30,7 +29,7 @@ async function insert(trx, glava, stavke) {
   return id;
 }
 
-async function update(trx, glava, stavke) {
+async function update(trx, glava, stavke, obrisaneStavke) {
 
 }
 
