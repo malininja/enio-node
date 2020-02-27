@@ -8,16 +8,18 @@ async function get(id) {
   return { RacunGlava: glava[0], RacunStavkaCollection: stavke };
 }
 
-async function insert(trx, glava, stavke) {
+async function insertGlava(trx, glava) {
   glava.RacunGlavaId = await knexUtils.getId();
   glava.ConcurrencyGuid = (new Date()).getTime();
-  const id = await trx("RacunGlava").insert(glava).returning("RacunGlavaId");
+  return trx("RacunGlava").insert(glava).returning("RacunGlavaId");
+};
 
+async function insertStavke(trx, glavaId, stavke) {
   const stavkePromises = [];
   stavke.forEach(stavka => {
     const prom = async () => {
       stavka.RacunStavkaId = await knexUtils.getId();
-      stavka.RacunGlavaId = parseInt(id);
+      stavka.RacunGlavaId = parseInt(glavaId);
       stavka.ConcurrencyGuid = (new Date()).getTime();
       await trx("RacunStavka").insert(stavka);
     };
@@ -26,11 +28,32 @@ async function insert(trx, glava, stavke) {
   });
 
   await Promise.all(stavkePromises);
-  return id;
 }
 
-async function update(trx, glava, stavke, obrisaneStavke) {
-
+function updateGlava(trx, glava) {
+  const { RacunGlavaId } = glava;
+  return trx("RacunGlava").where({ RacunGlavaId }).update(glava);
 }
 
-module.exports = { get, insert, update };
+async function updateStavke(trx, stavke) {
+  const promises = stavke.map(s => {
+    const { RacunStavkaId } = s;
+    return trx("RacunStavka").where({ RacunStavkaId }).update(s);
+  });
+
+  return Promise.all(promises);
+}
+
+async function removeStavke(trx, stavke) {
+  const ids = stavke.map(s => s.RacunStavkaId);
+  return trx("RacunStavka").whereIn("RacunStavkaId", ids).del();
+}
+
+module.exports = {
+  get,
+  insertGlava,
+  insertStavke,
+  updateGlava,
+  updateStavke,
+  removeStavke,
+};

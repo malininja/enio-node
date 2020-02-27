@@ -48,9 +48,9 @@ async function getAll(req, res, next) {
   return next();
 }
 
-function dajObrisane(stare, nove) {
+function dajObrisane(stare, trenutne) {
   const obrisane = [];
-  const noveIds = nove.map(s => s.RacunStavkaId ? parseInt(s.RacunStavkaId) : null);
+  const noveIds = trenutne.map(s => s.RacunStavkaId ? parseInt(s.RacunStavkaId) : null);
 
   stare.forEach(stavka => {
     if (!noveIds.includes(s.RacunStavkaId)) obrisane.push(stavka);
@@ -59,7 +59,29 @@ function dajObrisane(stare, nove) {
   return obrisane;
 }
 
-function pripremiStavkeZaUpis(stavke) {
+function dajNove(stare, trenutne) {
+  const nove = [];
+  const stareIds = stare.map(s => s.RacunStavkaId ? parseInt(s.RacunStavkaId) : null);
+
+  trenutne.forEach(stavka => {
+    if (!stareIds.includes(s.RacunStavkaId)) nove.push(stavka);
+  });
+
+  return nove;
+}
+
+function dajIzmjenjene(stare, trenutne) {
+  const izmjenjene = [];
+  const stareIds = stare.map(s => s.RacunStavkaId ? parseInt(s.RacunStavkaId) : null);
+
+  trenutne.forEach(stavka => {
+    if (stareIds.includes(s.RacunStavkaId)) izmjenjene.push(stavka);
+  });
+
+  return izmjenjene;
+}
+
+function pripremiStavkeZaUpis(glava, stavke) {
   stavke.forEach(stavka => {
     delete stavka.$$hashKey;
     delete stavka.Artikl;
@@ -75,20 +97,19 @@ function pripremiStavkeZaUpis(stavke) {
   });
 }
 
-async function pripremiGlavuZaUpis(firmaId, glava) {
-  const config = await configRepository.get(firmaId);
-  const godina = config.AktivnaGodina;
+async function pripremiGlavuZaUpis(glava, aktivnaGodina) {
   const [dan, mjesec, godinaDatum] = glava.Datum.split(".");
   glava.Datum = new Date(`${godinaDatum}-${mjesec}-${dan}`);
 
-  if (godina !== parseInt(godinaDatum)) {
+  if (aktivnaGodina !== parseInt(godinaDatum)) {
     throw new Error("Datum računa nije u aktivnoj godini.");
   }
 
-  glava.Godina = godina;
+  glava.Godina = aktivnaGodina;
 
   const tarifa = await tarifaRepository.get(glava.TarifaId);
-  glava.TarifaStopa = tarifa.Stopa;
+  glava.TarifaStopa = parseInt(tarifa.Stopa);
+  console.log(glava.TarifaStopa);
 }
 
 async function save(req, res, next) {
@@ -98,29 +119,38 @@ async function save(req, res, next) {
     const { glava, stavke } = req.body;
     const firmaId = bl.getFirmaId(req);
 
-    let id = glava.RacunGlavaId ? parseInt(glava.RacunGlavaId): null;
+    let id = glava.RacunGlavaId ? parseInt(glava.RacunGlavaId) : null;
+    const config = await configRepository.get(firmaId);
 
     if (id) {
-      const racun = await repository.get(id);
+      const racun = await racunRepository.get(id);
       if (racun.RacunGlava.FirmaId !== firmaId ||
         racun.RacunGlava.FirmaId !== parseInt(glava.FirmaId)) {
         throw new Error("Kriva firma.");
       }
 
-      pripremiGlavuZaUpis(firmaId, glava);
-      pripremiStavkeZaUpis(stavke);
+      await pripremiGlavuZaUpis(glava, config.AktivnaGodina);
+      pripremiStavkeZaUpis(glava, stavke);
+
+      const nove = dajNove(racun.RacunStavkaCollection, stavke);
+      const izmjenjene = dajIzmjenjene(racun.RacunStavkaCollection, stavke);
       const obrisane = dajObrisane(racun.RacunStavkaCollection, stavke);
-      
-      savedData = await racunRepository.update(trx, glava, stavke);
+
+      await Promise.all([
+        racunRepository.insert(rtx, galava, nove),
+        racunRepository.update(trx, glava, izmjenjene),
+        racunRepository.remove(trx, glava, obrisane),
+      ]);
     } else {
       glava.FirmaId = firmaId;
 
-      const brojRacuna = await brojacRepository.sljedeciBroj(trx, firmaId, "racun", godina);
+      const brojRacuna = await brojacRepository.sljedeciBroj(trx, firmaId, "racun", config.AktivnaGodina);
       glava.BrojRacuna = brojRacuna;
 
-      pripremiGlavuZaUpis(firmaId, glava);
-      pripremiStavkeZaUpis(stavke);
-      id = await racunRepository.insert(trx, glava, stavke);
+      await pripremiGlavuZaUpis(glava, config.AktivnaGodina);
+      pripremiStavkeZaUpis(glava, stavke);
+      id = await racunRepository.insertGlava(trx, glava);
+      await racunRepository.insertStavke(trx, id, stavke);
     }
 
     await trx.commit();
