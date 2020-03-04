@@ -11,7 +11,7 @@ async function sljedeciBroj(trx, firmaId, naziv, godina) {
 
   if (brojaci.length) {
     const brojac = brojaci[0];
-    slijedeciBroj = brojac.SlijedeciBroj + 1;
+    const slijedeciBroj = brojac.SlijedeciBroj + 1;
 
     await trx("Brojac")
       .where({

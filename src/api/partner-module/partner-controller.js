@@ -43,7 +43,7 @@ async function save(req, res, next) {
   if (PartnerId) {
     recordCount = await knex("Partner")
       .where({ PartnerId, ConcurrencyGuid })
-      .update(({ Adresa,  Mjesto, Naziv, Oib, Posta, Valuta, IsActive, IsActive, ConcurrencyGuid: (new Date()).getTime() }));
+      .update(({ Adresa,  Mjesto, Naziv, Oib, Posta, Valuta, IsActive, ConcurrencyGuid: (new Date()).getTime() }));
   } else {
     const id = await knexUtils.getId();
 

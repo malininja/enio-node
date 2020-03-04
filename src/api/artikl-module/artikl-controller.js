@@ -54,7 +54,6 @@ async function save(req, res, next) {
       Jm,
       Naziv,
       PdvId,
-      IsActive,
       Cijena,
       IsActive: true,
       FirmaId: bl.getFirmaId(req),

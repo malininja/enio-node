@@ -52,8 +52,8 @@ function dajObrisane(stare, trenutne) {
   const obrisane = [];
   const noveIds = trenutne.map(s => s.RacunStavkaId ? parseInt(s.RacunStavkaId) : null);
 
-  stare.forEach(stavka => {
-    if (!noveIds.includes(s.RacunStavkaId)) obrisane.push(stavka);
+  stare.forEach(s => {
+    if (!noveIds.includes(s.RacunStavkaId)) obrisane.push(s);
   });
 
   return obrisane;
@@ -63,8 +63,8 @@ function dajNove(stare, trenutne) {
   const nove = [];
   const stareIds = stare.map(s => s.RacunStavkaId ? parseInt(s.RacunStavkaId) : null);
 
-  trenutne.forEach(stavka => {
-    if (!stareIds.includes(s.RacunStavkaId)) nove.push(stavka);
+  trenutne.forEach(s => {
+    if (!stareIds.includes(s.RacunStavkaId)) nove.push(s);
   });
 
   return nove;
@@ -74,8 +74,8 @@ function dajIzmjenjene(stare, trenutne) {
   const izmjenjene = [];
   const stareIds = stare.map(s => s.RacunStavkaId ? parseInt(s.RacunStavkaId) : null);
 
-  trenutne.forEach(stavka => {
-    if (stareIds.includes(s.RacunStavkaId)) izmjenjene.push(stavka);
+  trenutne.forEach(s => {
+    if (stareIds.includes(s.RacunStavkaId)) izmjenjene.push(s);
   });
 
   return izmjenjene;
@@ -137,7 +137,7 @@ async function save(req, res, next) {
       const obrisane = dajObrisane(racun.RacunStavkaCollection, stavke);
 
       await Promise.all([
-        racunRepository.insert(rtx, galava, nove),
+        racunRepository.insert(trx, glava, nove),
         racunRepository.update(trx, glava, izmjenjene),
         racunRepository.remove(trx, glava, obrisane),
       ]);

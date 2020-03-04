@@ -12,7 +12,7 @@ async function insertGlava(trx, glava) {
   glava.RacunGlavaId = await knexUtils.getId();
   glava.ConcurrencyGuid = (new Date()).getTime();
   return trx("RacunGlava").insert(glava).returning("RacunGlavaId");
-};
+}
 
 async function insertStavke(trx, glavaId, stavke) {
   const stavkePromises = [];
