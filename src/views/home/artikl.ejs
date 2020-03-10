@@ -108,7 +108,7 @@
         closeArtiklDialog();
         
         $("#ArtiklTable").jqGrid({
-            url: "/api/artikl",
+            url: "http://localhost:8000/api/assessments?id=100",
             datatype: "json",
             colNames: ["ArtiklId", "Naziv", "Jm", "Pdv", "Cijena", "Aktivan"],
             colModel: [
