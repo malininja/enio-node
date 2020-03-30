@@ -1,12 +1,11 @@
 exports.seed = async knex => {
-  const tableName = "pdv";
+  const tableName = "role";
   const exists = await knex.schema.hasTable(tableName);
   if (exists) return;
 
   return knex.schema.createTable(tableName, table => {
     table.integer("id").primary();
-    table.string("naziv", 50).notNullable();
-    table.decimal("stopa", 4, 2).notNullable();
-    table.string("timestamp").notNullable();
+    table.string("code", 50).notNullable();
+    table.string("name", 50).notNullable();
   });
 };

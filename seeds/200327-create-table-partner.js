@@ -7,11 +7,11 @@ exports.seed = async knex => {
     table.integer("id").primary();
     table.string("adresa", 100);
     table.string("mjesto", 100);
-    table.string("naziv", 100);
-    table.string("oib", 11);
+    table.string("naziv", 100).notNullable();
+    table.string("oib", 11).notNullable();
     table.string("posta", 10);
-    table.integer("valuta");
-    table.boolean("active");
-    table.string("timestamp");
+    table.integer("valuta").notNullable();
+    table.boolean("active").notNullable();
+    table.string("timestamp").notNullable();
   });
 };

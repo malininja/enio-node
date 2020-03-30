@@ -5,12 +5,12 @@ exports.seed = async knex => {
 
   return knex.schema.createTable(tableName, table => {
     table.integer("id").primary();
-    table.integer("aktivna_godina");
+    table.integer("aktivna_godina").notNullable();
     table.string("adresa", 100);
     table.string("mjesto", 100);
-    table.string("naziv", 100);
-    table.string("oib", 11);
+    table.string("naziv", 100).notNullable();
+    table.string("oib", 11).notNullable();
     table.string("zr", 50);
-    table.string("timestamp");
+    table.string("timestamp").notNullable();
   });
 };

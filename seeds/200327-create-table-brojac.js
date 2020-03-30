@@ -5,9 +5,9 @@ exports.seed = async knex => {
 
   return knex.schema.createTable(tableName, table => {
     table.increments("id").primary();
-    table.integer("godina");
-    table.string("naziv", 50);
-    table.integer("slijedeci_broj");
-    table.string("timestamp");
+    table.integer("godina").notNullable();
+    table.string("naziv", 50).notNullable();
+    table.integer("slijedeci_broj").notNullable();
+    table.string("timestamp").notNullable();
   });
 };
