@@ -2,7 +2,7 @@ const knex = require("../configs/knex");
 const parsers = require("./type-parsers");
 
 async function getId() {
-  return (await knex.raw("select nextval('\"GenericSequence\"')")).rows[0].nextval;
+  return (await knex.raw("select nextval('generic_sequence')")).rows[0].nextval;
 }
 
 function whereBuilder(additionalFilters, jqGridQuery, fieldTypes) {

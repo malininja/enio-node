@@ -9,11 +9,11 @@ async function getAll(req, res, next) {
   const { pageSize, offset } = jqGrid.getPagingData(query);
 
   const firmaId = bl.getFirmaId(req);
-  const filters = [{ field: "Pdv.FirmaId", value: firmaId }];
-  const builder = knexUtils.whereBuilder(filters, query, { "Stopa": "numeric" });
+  const filters = [{ field: "pdv.firma_id", value: firmaId }];
+  const builder = knexUtils.whereBuilder(filters, query, { "stopa": "numeric" });
 
-  let countPromise = knexUtils.getCount(knex, "Pdv", builder);
-  let pdvsPromise = knexUtils.getData(knex, query, "Pdv", builder, pageSize, offset);
+  let countPromise = knexUtils.getCount(knex, "pdv", builder);
+  let pdvsPromise = knexUtils.getData(knex, query, "pdv", builder, pageSize, offset);
   const [count, pdvs] = await Promise.all([countPromise, pdvsPromise]);
 
   res.send(jqGrid.getResponse(pdvs, count, query));
@@ -23,7 +23,7 @@ async function getAll(req, res, next) {
 async function get(req, res, next) {
   const { id } = req.params;
 
-  const pdvs = await knex("Pdv").where("PdvId", id);
+  const pdvs = await knex("pdv").where("id", id);
   let pdv = null;
   if (pdvs.length === 1) pdv = pdvs[0];
 
@@ -32,24 +32,24 @@ async function get(req, res, next) {
 }
 
 async function save(req, res, next) {
-  const { PdvId, Naziv, Stopa: stopaString, ConcurrencyGuid } = req.body;
-  const Stopa = typeParser.parseCurrency(stopaString);
+  const { id, naziv, stopa: stopaString, timestamp } = req.body;
+  const stopa = typeParser.parseCurrency(stopaString);
 
   let recordCount = 1;
 
-  if (PdvId) {
-    recordCount = await knex("Pdv")
-      .where({ PdvId, ConcurrencyGuid })
-      .update(({ Naziv, Stopa, ConcurrencyGuid: (new Date()).getTime() }));
+  if (id) {
+    recordCount = await knex("pdv")
+      .where({ id, timestamp })
+      .update(({ naziv, stopa, timestamp: (new Date()).getTime() }));
   } else {
-    const id = await knexUtils.getId();
+    const newId = await knexUtils.getId();
 
-    await knex("Pdv").insert({
-      PdvId: id,
-      Naziv,
-      Stopa,
-      FirmaId: bl.getFirmaId(req),
-      ConcurrencyGuid: (new Date()).getTime(),
+    await knex("pdv").insert({
+      id: newId,
+      naziv,
+      stopa,
+      firma_id: bl.getFirmaId(req),
+      timestamp: (new Date()).getTime(),
     });
   }
 
