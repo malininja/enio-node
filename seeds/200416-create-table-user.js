@@ -8,6 +8,8 @@ exports.seed = async knex => {
     table.integer("role_id");
     table.string("username", 20).notNullable();
     table.string("password").notNullable();
+    table.integer("firma_id").notNullable();
+    table.foreign("firma_id").references("firma.id");
     table.string("timestamp").notNullable();
   });
 };

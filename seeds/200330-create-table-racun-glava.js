@@ -18,6 +18,8 @@ exports.seed = async knex => {
     table.string("vrijeme", 10);
     table.boolean("je_pdv_racun").notNullable();
     table.string("zaglavlje", 1024);
+    table.integer("firma_id").notNullable();
+    table.foreign("firma_id").references("firma.id");
     table.string("timestamp");
   });
 };

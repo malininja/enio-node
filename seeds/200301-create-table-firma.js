@@ -1,5 +1,5 @@
 exports.seed = async knex => {
-  const tableName = "config";
+  const tableName = "firma";
   const exists = await knex.schema.hasTable(tableName);
   if (exists) return;
 
