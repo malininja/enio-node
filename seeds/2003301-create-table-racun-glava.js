@@ -12,6 +12,7 @@ exports.seed = async knex => {
     table.integer("partner_id").notNullable();
     table.foreign("partner_id").references("partner.id");
     table.integer("tarifa_id").notNullable();
+    table.foreign("tarifa_id").references("tarifa.id");
     table.decimal("tarifa_stopa", 5, 2).notNullable();
     table.integer("valuta").notNullable();
     table.integer("status_id").notNullable();
