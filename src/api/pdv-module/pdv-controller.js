@@ -32,25 +32,26 @@ async function get(req, res, next) {
 }
 
 async function save(req, res, next) {
-  const { id, naziv, stopa: stopaString, timestamp } = req.body;
-  const stopa = typeParser.parseCurrency(stopaString);
-
   let recordCount = 1;
 
-  if (id) {
-    recordCount = await knex("pdv")
-      .where({ id, timestamp })
-      .update(({ naziv, stopa, timestamp: (new Date()).getTime() }));
-  } else {
-    const newId = await knexUtils.getId();
-
-    await knex("pdv").insert({
-      id: newId,
-      naziv,
-      stopa,
-      firma_id: bl.getFirmaId(req),
-      timestamp: (new Date()).getTime(),
-    });
+  try {
+    const { id, naziv, stopa: stopaString, timestamp } = req.body;
+    const stopa = typeParser.parseCurrency(stopaString);
+  
+    if (id) {
+      recordCount = await knex("pdv")
+        .where({ id, timestamp })
+        .update(({ naziv, stopa, timestamp: (new Date()).getTime() }));
+    } else {
+      await knex("pdv").insert({
+        naziv,
+        stopa,
+        firma_id: bl.getFirmaId(req),
+        timestamp: (new Date()).getTime(),
+      });
+    }
+  } catch (err) {
+    return next(err);
   }
 
   res.send(recordCount === 1);
