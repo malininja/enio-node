@@ -4,7 +4,7 @@ exports.seed = async knex => {
   if (exists) return;
 
   return knex.schema.createTable(tableName, table => {
-    table.integer("id").primary();
+    table.increments("id").primary();
     table.integer("aktivna_godina").notNullable();
     table.string("adresa", 100);
     table.string("mjesto", 100);

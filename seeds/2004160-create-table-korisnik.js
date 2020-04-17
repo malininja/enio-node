@@ -4,7 +4,7 @@ exports.seed = async knex => {
   if (exists) return;
 
   return knex.schema.createTable(tableName, table => {
-    table.integer("id").primary();
+    table.increments("id").primary();
     table.integer("role_id").notNullable();
     table.foreign("role_id").references("role.id");
     table.string("ime", 20).notNullable();
