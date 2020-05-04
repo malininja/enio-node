@@ -17,7 +17,7 @@
                 <tr>
                     <td>Naziv:</td>
                     <td>
-                        <input ng-model="selectedArtikl.Naziv" />
+                        <input ng-model="selectedArtikl.naziv" />
                     </td>
                     <td>
                         <span class="validation" name="RequiredField" ng-show="!validation.isNazivExist()"></span>
@@ -27,7 +27,7 @@
                 <tr>
                     <td>Jedinica mjere:</td>
                     <td>
-                        <input ng-model="selectedArtikl.Jm" />
+                        <input ng-model="selectedArtikl.jm" />
                     </td>
                     <td>
                         
@@ -36,8 +36,8 @@
                 <tr>
                     <td>Pdv:</td>
                     <td>
-                        <select ng-model="selectedArtikl.PdvId"
-                            ng-options="pdv.PdvId as pdv.Naziv for pdv in pdvCollection"></select>
+                        <select ng-model="selectedArtikl.pdv_id"
+                            ng-options="pdv.id as pdv.naziv for pdv in pdvCollection"></select>
                     </td>
                     <td>
                         <span class="validation" name="RequiredField" ng-show="!validation.isPdvExist()"></span>
@@ -46,7 +46,7 @@
                 <tr>
                     <td>Cijena:</td>
                     <td>
-                        <input ng-model="selectedArtikl.Cijena" />
+                        <input ng-model="selectedArtikl.cijena" />
                     </td>
                     <td>
                         <span class="validation" name="RequiredField" ng-show="!validation.isCijenaExist()"></span>
@@ -56,7 +56,7 @@
                 <tr id="tdAktivan" ng-show="!isSelectedArtiklNew()">
                     <td>Aktivan:</td>
                     <td>
-                        <input type="checkbox" ng-model="selectedArtikl.IsActive" />
+                        <input type="checkbox" ng-model="selectedArtikl.active" />
                     </td>
                     <td></td>
                 </tr>
@@ -108,18 +108,18 @@
         closeArtiklDialog();
         
         $("#ArtiklTable").jqGrid({
-            url: "http://localhost:8000/api/assessments?id=100",
+            url: "/api/artikl",
             datatype: "json",
             colNames: ["ArtiklId", "Naziv", "Jm", "Pdv", "Cijena", "Aktivan"],
             colModel: [
-                { name: "ArtiklId", index: "ArtiklId", hidden: true, width: 0 },
-                { name: "Naziv", index: "Naziv", width: 250, searchoptions: { clearSearch: false } },
-                { name: "Jm", index: "Jm", width: 90, searchoptions: { clearSearch: false } },
-                { name: "PdvStopa", index: "PdvStopa", width: 90, sortable: false, align: "right", formatter: "number", formatoptions: { decimalSeparator: ",", decimalPlaces: 2 },
+                { name: "id", index: "id", hidden: true, width: 0 },
+                { name: "naziv", index: "naziv", width: 250, searchoptions: { clearSearch: false } },
+                { name: "jm", index: "jm", width: 90, searchoptions: { clearSearch: false } },
+                { name: "pdv_stopa", index: "pdv_stopa", width: 90, sortable: false, align: "right", formatter: "number", formatoptions: { decimalSeparator: ",", decimalPlaces: 2 },
                     searchoptions: { clearSearch: false } },
-                { name: "Cijena", index: "Cijena", width: 100, align: "right", formatter: "number", formatoptions: { decimalSeparator: ",", decimalPlaces: 2 }, 
+                { name: "cijena", index: "cijena", width: 100, align: "right", formatter: "number", formatoptions: { decimalSeparator: ",", decimalPlaces: 2 }, 
                     searchoptions: { clearSearch: false } },
-                { name: "IsActive", index: "IsActive", width: 50, formatter: 'select', editoptions: { value: 'true:Da;false:Ne'}, align: "center", stype: "select",
+                { name: "active", index: "active", width: 50, formatter: 'select', editoptions: { value: 'true:Da;false:Ne'}, align: "center", stype: "select",
                     searchoptions: { sopt: ["eq"], value: ":--;True:Da;False:Ne", clearSearch: false } }
             ],
             pager: "#ArtiklTablePager",
@@ -127,7 +127,7 @@
             onSelectRow: function (id) {
                 var rowData = $(this).getRowData(id);
                 var scope = getNgControllerScope();
-                scope.loadArtikl(rowData["ArtiklId"]);
+                scope.loadArtikl(rowData["id"]);
                 openArtiklDialog();
             },
             height: 'auto'

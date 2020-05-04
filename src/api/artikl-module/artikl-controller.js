@@ -5,64 +5,73 @@ const jqGrid = require("../../utils/jqGrid");
 const bl = require("../../utils/bl");
 
 async function getAll(req, res, next) {
-  const { query } = req;
-  const { pageSize, offset } = jqGrid.getPagingData(query);
+  try {
+    const { query } = req;
+    const { pageSize, offset } = jqGrid.getPagingData(query);
 
-  const firmaId = bl.getFirmaId(req);
-  const filters = [{ field: "Artikl.FirmaId", value: firmaId }];
-  const fieldTypes = { "Cijena": "numeric", "IsActive": "boolean" };
-  const builder = knexUtils.whereBuilder(filters, query, fieldTypes);
+    const firmaId = bl.getFirmaId(req);
+    const filters = [{ field: "artikl.firma_id", value: firmaId }];
+    const fieldTypes = { "cijena": "numeric", "active": "boolean" };
+    const builder = knexUtils.whereBuilder(filters, query, fieldTypes);
 
-  let countPromise = knexUtils.getCount(knex, "Artikl", builder);
-  let artikliPromise = knexUtils.getData(knex, query, "Artikl", builder, pageSize, offset);
-  artikliPromise.innerJoin("Pdv", "Artikl.PdvId", "Pdv.PdvId");
-  artikliPromise.select("Artikl.*", "Pdv.Stopa as PdvStopa");
+    let countPromise = knexUtils.getCount(knex, "artikl", builder);
+    let artikliPromise = knexUtils.getData(knex, query, "artikl", builder, pageSize, offset);
+    artikliPromise.innerJoin("pdv", "artikl.pdv_id", "pdv.id");
+    artikliPromise.select("artikl.*", "pdv.stopa as pdv_stopa");
 
-  const [count, artikli] = await Promise.all([countPromise, artikliPromise]);
+    const [count, artikli] = await Promise.all([countPromise, artikliPromise]);
 
-  res.send(jqGrid.getResponse(artikli, count, query));
-  return next();
+    res.send(jqGrid.getResponse(artikli, count, query));
+    return next();
+  } catch (err) {
+    return next(err);
+  }
 }
 
 async function get(req, res, next) {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-  const artikli = await knex("Artikl").where("ArtiklId", id);
-  let artikl = null;
-  if (artikli.length === 1) artikl = artikli[0];
+    const artikli = await knex("artikl").where("id", id);
+    let artikl = null;
+    if (artikli.length === 1) artikl = artikli[0];
 
-  res.send(artikl);
-  return next();
+    res.send(artikl);
+    return next();
+  } catch (err) {
+    return next(err);
+  }
 }
 
 async function save(req, res, next) {
-  const { ArtiklId, Jm, Naziv, PdvId, IsActive: isActiveString, Cijena: cijenaString, ConcurrencyGuid } = req.body;
-  const Cijena = typeParser.parseCurrency(cijenaString);
-  const IsActive = typeParser.parseBool(isActiveString);
+  try {
+    const { id, jm, naziv, pdv_id, active: isActiveString, cijena: cijenaString, timestamp } = req.body;
+    const cijena = typeParser.parseCurrency(cijenaString);
+    const active = typeParser.parseBool(isActiveString);
 
-  let recordCount = 1;
+    let recordCount = 1;
 
-  if (ArtiklId) {
-    recordCount = await knex("Artikl")
-      .where({ ArtiklId, ConcurrencyGuid })
-      .update(({ Jm, Naziv, PdvId, IsActive, Cijena, ConcurrencyGuid: (new Date()).getTime() }));
-  } else {
-    const id = await knexUtils.getId();
+    if (id) {
+      recordCount = await knex("artikl")
+        .where({ id, timestamp })
+        .update(({ jm, naziv, pdv_id, active, cijena, timestamp: (new Date()).getTime() }));
+    } else {
+      await knex("artikl").insert({
+        jm,
+        naziv,
+        pdv_id,
+        cijena,
+        active: true,
+        firma_id: bl.getFirmaId(req),
+        timestamp: (new Date()).getTime(),
+      });
+    }
 
-    await knex("Artikl").insert({
-      ArtiklId: id,
-      Jm,
-      Naziv,
-      PdvId,
-      Cijena,
-      IsActive: true,
-      FirmaId: bl.getFirmaId(req),
-      ConcurrencyGuid: (new Date()).getTime(),
-    });
+    res.send(recordCount === 1);
+    return next();
+  } catch (err) {
+    return next(err);
   }
-
-  res.send(recordCount === 1);
-  return next();
 }
 
 module.exports = { getAll, get, save };
