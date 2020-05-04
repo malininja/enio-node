@@ -8,27 +8,35 @@ async function getAll(req, res, next) {
   const { query } = req;
   const { pageSize, offset } = jqGrid.getPagingData(query);
 
-  const firmaId = bl.getFirmaId(req);
-  const filters = [{ field: "pdv.firma_id", value: firmaId }];
-  const builder = knexUtils.whereBuilder(filters, query, { "stopa": "numeric" });
-
-  let countPromise = knexUtils.getCount(knex, "pdv", builder);
-  let pdvsPromise = knexUtils.getData(knex, query, "pdv", builder, pageSize, offset);
-  const [count, pdvs] = await Promise.all([countPromise, pdvsPromise]);
-
-  res.send(jqGrid.getResponse(pdvs, count, query));
-  return next();
+  try {
+    const firmaId = bl.getFirmaId(req);
+    const filters = [{ field: "pdv.firma_id", value: firmaId }];
+    const builder = knexUtils.whereBuilder(filters, query, { "stopa": "numeric" });
+  
+    let countPromise = knexUtils.getCount(knex, "pdv", builder);
+    let pdvsPromise = knexUtils.getData(knex, query, "pdv", builder, pageSize, offset);
+    const [count, pdvs] = await Promise.all([countPromise, pdvsPromise]);
+  
+    res.send(jqGrid.getResponse(pdvs, count, query));
+    return next(); 
+  } catch (err) {
+    return next(err);
+  }
 }
 
 async function get(req, res, next) {
   const { id } = req.params;
 
-  const pdvs = await knex("pdv").where("id", id);
-  let pdv = null;
-  if (pdvs.length === 1) pdv = pdvs[0];
-
-  res.send(pdv);
-  return next();
+  try {
+    const pdvs = await knex("pdv").where("id", id);
+    let pdv = null;
+    if (pdvs.length === 1) pdv = pdvs[0];
+  
+    res.send(pdv);
+    return next();    
+  } catch (err) {
+    return next(err); 
+  }
 }
 
 async function save(req, res, next) {
