@@ -1,13 +1,13 @@
-const repository = require("./config-repository");
+const repository = require("./firma-repository");
 const bl = require("../../utils/bl");
 
 async function get(req, res, next) {
   try {
     const firmaId = bl.getFirmaId(req);
-    const config = await repository.get(firmaId);
+    const firma = await repository.get(firmaId);
 
-    if (!config) res.sendStatus(404);
-    else res.send(config);
+    if (!firma) res.sendStatus(404);
+    else res.send(firma);
     return next();
   } catch (error) {
     return next(error);

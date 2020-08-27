@@ -1,7 +1,7 @@
 <%- include("header") -%>
 
 <div ng-app="enioApp">
-    <div id="divNgController" ng-controller="ConfigController">
+    <div id="divNgController" ng-controller="FirmaController">
         <h2>Lista računa za {{ config.AktivnaGodina }}. godinu</h2>
     </div>
 </div>
@@ -90,7 +90,7 @@
         }
     }
 
-    $(document).on("ConfigIsLoaded", function () {
+    $(document).on("FirmaIsLoaded", function () {
         ngControllerScope = angular.element($("#divNgController")).scope();
 
         $("#datum-od, #datum-do").datepicker({

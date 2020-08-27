@@ -5,7 +5,7 @@ const jqGrid = require("../../utils/jqGrid");
 const bl = require("../../utils/bl");
 const brojacRepository = require("../brojac-module/brojac-repository");
 const racunRepository = require("./racun-repository");
-const configRepository = require("../config-module/config-repository");
+const firmaRepository = require("../firma-module/firma-repository");
 const tarifaRepository = require("../tarifa-module/tarifa-repository");
 
 async function get(req, res, next) {
@@ -120,7 +120,7 @@ async function save(req, res, next) {
     const firmaId = bl.getFirmaId(req);
 
     let id = glava.RacunGlavaId ? parseInt(glava.RacunGlavaId) : null;
-    const config = await configRepository.get(firmaId);
+    const config = await firmaRepository.get(firmaId);
 
     if (id) {
       const racun = await racunRepository.get(id);
