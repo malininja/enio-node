@@ -2,7 +2,7 @@
 
 <div ng-app="enioApp">
     <div id="divNgController" ng-controller="FirmaController">
-        <h2>Lista računa za {{ config.AktivnaGodina }}. godinu</h2>
+        <h2>Lista računa za {{ firma.aktivna_godina }}. godinu</h2>
     </div>
 </div>
 
@@ -32,13 +32,13 @@
         datatype: "json",
         colNames: ["Id", "Broj", "Partner", "Datum", "Iznos", "Status"],
         colModel: [
-            { name: "RacunGlavaId", index: "RacunGlavaId", hidden: true },
-            { name: "BrojRacuna", index: "BrojRacuna", width: 50, searchoptions: { clearSearch: false } },
-            { name: "PartnerNaziv", index: "PartnerNaziv", width: 200, searchoptions: { clearSearch: false } },
-            { name: "Datum", index: "Datum", width: 200, formatter: "date", formatoptions: { srcformat: "Y-m-d", newformat: "d.m.Y" }, search: false },
-            { name: "Iznos", index: "Iznos", width: 200, align: "right", formatter: "number", formatoptions: { decimalSeparator: ",", decimalPlaces: 2 }, search: false },
+            { name: "id", index: "id", hidden: true },
+            { name: "broj_racuna", index: "broj_racuna", width: 50, searchoptions: { clearSearch: false } },
+            { name: "partner_naziv", index: "partner_naziv", width: 200, searchoptions: { clearSearch: false } },
+            { name: "datum", index: "datum", width: 200, formatter: "date", formatoptions: { srcformat: "Y-m-d", newformat: "d.m.Y" }, search: false },
+            { name: "iznos", index: "iznos", width: 200, align: "right", formatter: "number", formatoptions: { decimalSeparator: ",", decimalPlaces: 2 }, search: false },
             {
-                name: "StatusId", index: "StatusId", width: 200, stype: "select",
+                name: "status_id", index: "status_id", width: 200, stype: "select",
                 searchoptions: { sopt: ["eq"], value: ":--;1:Plaćen;2:Neplaćen;3:Storniran;4:Otpis;5:Blokada", clearSearch: false }
             },
         ],
@@ -46,7 +46,7 @@
         caption: "Lista računa",
         onSelectRow: function (id) {
             var rowData = $(this).getRowData(id);
-            var racunGlavaId = rowData["RacunGlavaId"];
+            var racunGlavaId = rowData["id"];
             window.location.href = "/Home/racun-edit?racunGlavaId=" + racunGlavaId;
         },
         height: 'auto'
@@ -66,8 +66,8 @@
                 for (var i = 0; i < filters.rules.length; i++) {
                     var rule = filters.rules[i];
 
-                    if (rule.field === "Status.Name") {
-                        rule.field = "StatusId";
+                    if (rule.field === "status.name") {
+                        rule.field = "status_id";
                     }
                 }
 
@@ -85,7 +85,7 @@
 
             if (date) {
                 var param = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
-                filters.rules.push({ field: "Datum", data: date, op: operator });
+                filters.rules.push({ field: "datum", data: date, op: operator });
             }
         }
     }
@@ -94,7 +94,7 @@
         ngControllerScope = angular.element($("#divNgController")).scope();
 
         $("#datum-od, #datum-do").datepicker({
-            yearRange: ngControllerScope.config.AktivnaGodina + ":" + ngControllerScope.config.AktivnaGodina,
+            yearRange: ngControllerScope.firma.AktivnaGodina + ":" + ngControllerScope.firma.AktivnaGodina,
             changeMonth: true,
             changeYear: true,
             onSelect: function (dateText) {

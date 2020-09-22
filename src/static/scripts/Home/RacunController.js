@@ -4,10 +4,10 @@ app.controller("RacunController", ["$scope", function ($scope) {
     var dateString = ninjaSoftware.date.getDateString(new Date());
 
     $scope.racunGlava = {
-        Datum: dateString,
-        Vrijeme: "12:00",
-        JePdvRacun: true,
-        StatusId: "2"
+        datum: dateString,
+        vrijeme: "12:00",
+        je_pdv_racun: true,
+        status_id: "2"
     };
 
     $scope.newRacunStavka = {};
@@ -24,11 +24,11 @@ app.controller("RacunController", ["$scope", function ($scope) {
 
         if (racun) {
             var fn = function () {
-                var datum = new Date(racun.RacunGlava.Datum);
-                racun.RacunGlava.Datum = ninjaSoftware.date.getDateString(datum);
-                $scope.racunGlava = racun.RacunGlava;
-                $scope.racunStavkaCollection = ninjaSoftware.formatNo.toHrNoFormat(racun.RacunStavkaCollection, "Kolicina");
-                $scope.racunStavkaCollection = ninjaSoftware.formatNo.toHrNoFormat(racun.RacunStavkaCollection, "Cijena");
+                var datum = new Date(racun.racunGlava.datum);
+                racun.racunGlava.datum = ninjaSoftware.date.getDateString(datum);
+                $scope.racunGlava = racun.racunGlava;
+                $scope.racunStavkaCollection = ninjaSoftware.formatNo.toHrNoFormat(racun.racunStavkaCollection, "kolicina");
+                $scope.racunStavkaCollection = ninjaSoftware.formatNo.toHrNoFormat(racun.racunStavkaCollection, "cijena");
             };
 
             ninjaSoftware.angularjs.safeApply($scope, fn);
@@ -77,7 +77,7 @@ app.controller("RacunController", ["$scope", function ($scope) {
             var fn = function () {
                 if (tarifaCollection.rows.length > 0) {
                     $scope.tarifaCollection = tarifaCollection.rows;
-                    $scope.racunGlava.TarifaId = tarifaCollection.rows[0].TarifaId;
+                    $scope.racunGlava.tarifa_id = tarifaCollection.rows[0].id;
                 }
             };
 
@@ -90,11 +90,11 @@ app.controller("RacunController", ["$scope", function ($scope) {
     _me.loadStatusCollection = function () {
         var fn = function () {
             $scope.statusCollection = [
-                { Code: "Paid", Name: "Plaćen", StatusId: "1" },
-                { Code: "Unpaid", Name: "Neplaćen", StatusId: "2" },
-                { Code: "Cancelled", Name: "Storniran", StatusId: "3" },
-                { Code: "WriteOff", Name: "Otpis", StatusId: "4" },
-                { Code: "Blockade", Name: "Blokada", StatusId: "5" },
+                { code: "Paid", name: "Plaćen", id: "1" },
+                { code: "Unpaid", name: "Neplaćen", id: "2" },
+                { code: "Cancelled", name: "Storniran", id: "3" },
+                { code: "WriteOff", name: "Otpis", id: "4" },
+                { code: "Blockade", name: "Blokada", id: "5" },
             ];
         };
 
@@ -133,12 +133,12 @@ app.controller("RacunController", ["$scope", function ($scope) {
 
     $scope.validation.isPoslovnaGodinaValid = function () {
         Globalize.culture("hr");
-        var date = Globalize.parseDate($scope.racunGlava.Datum);
+        var date = Globalize.parseDate($scope.racunGlava.datum);
         var year = date.getFullYear();
 
-        var config = enioNg.api.config.get();
+        var firma = enioNg.api.firma.get();
 
-        if (config.AktivnaGodina !== year) {
+        if (firma.aktivna_godina !== year) {
             alert("Datum računa nije u aktivnoj poslovnoj godini. Račun nije pohranjen.");
             return false;
         }
@@ -148,12 +148,12 @@ app.controller("RacunController", ["$scope", function ($scope) {
 
     $scope.calculateTotal = function () {
         var tarifaStopa;
-        if ($scope.racunGlava.TarifaStopa) {
-            tarifaStopa = $scope.racunGlava.TarifaStopa;
+        if ($scope.racunGlava.tarifa_stopa) {
+            tarifaStopa = $scope.racunGlava.tarifa_stopa;
         } else {
             for (var i = 0; i < $scope.tarifaCollection.length; i++) {
-                if ($scope.tarifaCollection[i].TarifaId === $scope.racunGlava.TarifaId) {
-                    tarifaStopa = $scope.tarifaCollection[i].Stopa;
+                if ($scope.tarifaCollection[i].id === $scope.racunGlava.tarifa_id) {
+                    tarifaStopa = $scope.tarifaCollection[i].stopa;
                 }
             }
         }
@@ -163,11 +163,11 @@ app.controller("RacunController", ["$scope", function ($scope) {
         if ($scope.racunStavkaCollection.length > 0) {
             for (var i = 0; i < $scope.racunStavkaCollection.length; i++) {
                 var racunStavka = $scope.racunStavkaCollection[i];
-                var kolicina = ninjaSoftware.parser.parseHrFloat(racunStavka.Kolicina);
-                var cijena = ninjaSoftware.parser.parseHrFloat(racunStavka.Cijena);
+                var kolicina = ninjaSoftware.parser.parseHrFloat(racunStavka.kolicina);
+                var cijena = ninjaSoftware.parser.parseHrFloat(racunStavka.cijena);
 
                 var tarifaIznos = kolicina * cijena * tarifaStopa / 100;
-                var pdvIznos = (kolicina * cijena + tarifaIznos) * racunStavka.PdvPosto / 100;
+                var pdvIznos = (kolicina * cijena + tarifaIznos) * racunStavka.pdv_posto / 100;
                 var iznos = kolicina * cijena + tarifaIznos + pdvIznos;
 
                 total = total + iznos;
@@ -187,7 +187,7 @@ app.controller("RacunController", ["$scope", function ($scope) {
         var artikl;
 
         $($scope.artiklCollection).each(function (index, item) {
-            if (item.ArtiklId === $scope.newRacunStavka.ArtiklId) {
+            if (item.id === $scope.newRacunStavka.artikl_id) {
                 artikl = item;
             }
         });
@@ -195,41 +195,41 @@ app.controller("RacunController", ["$scope", function ($scope) {
         var pdv;
 
         $(_me.pdvCollection).each(function (index, item) {
-            if (item.PdvId === artikl.PdvId) {
+            if (item.id === artikl.pdv_id) {
                 pdv = item;
             }
         });
 
-        $scope.newRacunStavka.Artikl = artikl;
-        $scope.newRacunStavka.ArtiklId = artikl.ArtiklId;
-        $scope.newRacunStavka.Kolicina = null;
-        $scope.newRacunStavka.Cijena = ninjaSoftware.formatNo.toHrCurrencyFormat(artikl.Cijena);
-        $scope.newRacunStavka.PdvPosto = pdv.Stopa;
+        $scope.newRacunStavka.artikl = artikl;
+        $scope.newRacunStavka.artikl_id = artikl.id;
+        $scope.newRacunStavka.kolicina = null;
+        $scope.newRacunStavka.cijena = ninjaSoftware.formatNo.toHrCurrencyFormat(artikl.cijena);
+        $scope.newRacunStavka.pdv_posto = pdv.stopa;
 
         $(document).trigger("ArtiklChanged");
     };
 
     $scope.onPartnerChange = function () {
-        var partnerId = $scope.racunGlava.PartnerId;
+        var partnerId = $scope.racunGlava.partner_id;
 
         for (var i = 0; i < $scope.partnerCollection.length; i++) {
             var partner = $scope.partnerCollection[i];
 
-            if (partner.PartnerId === partnerId) {
-                $scope.racunGlava.Valuta = partner.Valuta;
+            if (partner.id === partnerId) {
+                $scope.racunGlava.valuta = partner.valuta;
                 break;
             }
         }
     };
 
     $scope.onTarifaChange = function () {
-        var tarifaId = $scope.racunGlava.TarifaId;
+        var tarifaId = $scope.racunGlava.tarifa_id;
 
         for (var i = 0; i < $scope.tarifaCollection.length; i++) {
             var tarifa = $scope.tarifaCollection[i];
 
-            if (tarifa.TarifaId === tarifaId) {
-                $scope.racunGlava.TarifaStopa = tarifa.Stopa;
+            if (tarifa.id === tarifaId) {
+                $scope.racunGlava.tarifa_stopa = tarifa.stopa;
                 break;
             }
         }
@@ -238,14 +238,14 @@ app.controller("RacunController", ["$scope", function ($scope) {
     };
 
     $scope.addRacunStavka = function () {
-        if (!$scope.newRacunStavka.ArtiklId ||
+        if (!$scope.newRacunStavka.artikl_id ||
             !$scope.racunForm.newStavkaKolicina.$valid ||
             !$scope.racunForm.newStavkaCijena.$valid) {
             //alert("nevalja!!!");
             return;
         }
 
-        var existingObjects = $.grep($scope.racunStavkaCollection, function (e) { return e.ArtiklId == $scope.newRacunStavka.ArtiklId; });
+        var existingObjects = $.grep($scope.racunStavkaCollection, function (e) { return e.artikl_id == $scope.newRacunStavka.artikl_id; });
         if (existingObjects.length > 0) {
             alert("Artikl je već dodan na račun.");
             return;
@@ -255,16 +255,16 @@ app.controller("RacunController", ["$scope", function ($scope) {
         var arrayLength = $scope.racunStavkaCollection.length;
 
         if (arrayLength) {
-            pozicija = $scope.racunStavkaCollection[arrayLength - 1].Pozicija + 1;
+            pozicija = $scope.racunStavkaCollection[arrayLength - 1].pozicija + 1;
         }
 
         var stavka = {
-            Pozicija: pozicija,
-            Artikl: $scope.newRacunStavka.Artikl,
-            ArtiklId: $scope.newRacunStavka.ArtiklId,
-            Kolicina: ninjaSoftware.formatNo.toHrCurrencyFormat($scope.newRacunStavka.Kolicina),
-            Cijena: ninjaSoftware.formatNo.toHrCurrencyFormat($scope.newRacunStavka.Cijena),
-            PdvPosto: $scope.newRacunStavka.PdvPosto
+            pozicija,
+            artikl: $scope.newRacunStavka.artikl,
+            artikl_id: $scope.newRacunStavka.artikl_id,
+            kolicina: ninjaSoftware.formatNo.toHrCurrencyFormat($scope.newRacunStavka.kolicina),
+            cijena: ninjaSoftware.formatNo.toHrCurrencyFormat($scope.newRacunStavka.cijena),
+            pdv_posto: $scope.newRacunStavka.pdv_posto
         };
 
         $scope.racunStavkaCollection.push(stavka);
@@ -273,7 +273,7 @@ app.controller("RacunController", ["$scope", function ($scope) {
 
     $scope.deleteRacunStavka = function (pozicija) {
         $($scope.racunStavkaCollection).each(function (index, item) {
-            if (item.Pozicija === pozicija) {
+            if (item.pozicija === pozicija) {
                 $scope.racunStavkaCollection.splice(index, 1);
                 return false;
             }

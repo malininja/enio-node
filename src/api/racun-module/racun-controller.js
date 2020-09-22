@@ -27,20 +27,20 @@ async function getAll(req, res, next) {
   const { pageSize, offset } = jqGrid.getPagingData(query);
 
   const firmaId = bl.getFirmaId(req);
-  const filters = [{ field: "RacunGlava.FirmaId", value: firmaId }];
+  const filters = [{ field: "racun_glava.firma_id", value: firmaId }];
 
-  const fieldTypes = { "BrojRacuna": "numeric", "StatusId": "numeric" };
+  const fieldTypes = { "broj_racuna": "numeric", "status_id": "numeric" };
   const builder = knexUtils.whereBuilder(filters, query, fieldTypes);
 
-  let countPromise = knexUtils.getCount(knex, "RacunGlava", builder);
-  let racunGlavePromise = knexUtils.getData(knex, query, "RacunGlava", builder, pageSize, offset);
-  racunGlavePromise.innerJoin("Partner", "RacunGlava.PartnerId", "Partner.PartnerId");
-  racunGlavePromise.innerJoin("Config", join => {
-    join.on("RacunGlava.FirmaId", "Config.FirmaId")
-      .andOn("RacunGlava.Godina", "Config.AktivnaGodina");
+  let countPromise = knexUtils.getCount(knex, "racun_glava", builder);
+  let racunGlavePromise = knexUtils.getData(knex, query, "racun_glava", builder, pageSize, offset);
+  racunGlavePromise.innerJoin("partner", "racun_glava.partner_id", "partner.id");
+  racunGlavePromise.innerJoin("firma", join => {
+    join.on("racun_glava.firma_id", "firma.id")
+      .andOn("racun_glava.godina", "firma.aktivna_godina");
   });
 
-  racunGlavePromise.select("RacunGlava.*", "Partner.Naziv as PartnerNaziv");
+  racunGlavePromise.select("racun_glava.*", "partner.naziv as partner_naziv");
 
   const [count, racunGlave] = await Promise.all([countPromise, racunGlavePromise]);
 
@@ -50,10 +50,10 @@ async function getAll(req, res, next) {
 
 function dajObrisane(stare, trenutne) {
   const obrisane = [];
-  const noveIds = trenutne.map(s => s.RacunStavkaId ? parseInt(s.RacunStavkaId) : null);
+  const noveIds = trenutne.map(s => s.id);
 
   stare.forEach(s => {
-    if (!noveIds.includes(s.RacunStavkaId)) obrisane.push(s);
+    if (!noveIds.includes(s.id)) obrisane.push(s);
   });
 
   return obrisane;
@@ -61,10 +61,10 @@ function dajObrisane(stare, trenutne) {
 
 function dajNove(stare, trenutne) {
   const nove = [];
-  const stareIds = stare.map(s => s.RacunStavkaId ? parseInt(s.RacunStavkaId) : null);
+  const stareIds = stare.map(s => s.id);
 
   trenutne.forEach(s => {
-    if (!stareIds.includes(s.RacunStavkaId)) nove.push(s);
+    if (!stareIds.includes(s.id)) nove.push(s);
   });
 
   return nove;
@@ -72,10 +72,10 @@ function dajNove(stare, trenutne) {
 
 function dajIzmjenjene(stare, trenutne) {
   const izmjenjene = [];
-  const stareIds = stare.map(s => s.RacunStavkaId ? parseInt(s.RacunStavkaId) : null);
+  const stareIds = stare.map(s => s.id);
 
   trenutne.forEach(s => {
-    if (stareIds.includes(s.RacunStavkaId)) izmjenjene.push(s);
+    if (stareIds.includes(s.id)) izmjenjene.push(s);
   });
 
   return izmjenjene;
@@ -84,32 +84,32 @@ function dajIzmjenjene(stare, trenutne) {
 function pripremiStavkeZaUpis(glava, stavke) {
   stavke.forEach(stavka => {
     delete stavka.$$hashKey;
-    delete stavka.Artikl;
-    stavka.Kolicina = typeParser.parseCurrency(stavka.Kolicina);
-    stavka.Cijena = typeParser.parseCurrency(stavka.Cijena);
-    stavka.PdvPosto = parseFloat(stavka.PdvPosto);
+    delete stavka.artikl;
+    stavka.kolicina = typeParser.parseCurrency(stavka.kolicina);
+    stavka.cijena = typeParser.parseCurrency(stavka.cijena);
+    stavka.pdv_posto = parseFloat(stavka.pdv_posto);
 
-    const { Kolicina, Cijena, PdvPosto } = stavka;
+    const { kolicina, cijena, pdv_posto: pdvPosto } = stavka;
     // zaokruži na dvije decimale
-    stavka.TarifaIznos = Kolicina * Cijena * glava.TarifaStopa / 100;
-    stavka.PdvIznos = (Kolicina * Cijena + stavka.TarifaIznos) * PdvPosto / 100;
-    stavka.Iznos = Kolicina * Cijena + stavka.TarifaIznos + stavka.PdvIznos;
+    stavka.tarifa_iznos = kolicina * cijena * glava.tarifa_stopa / 100;
+    stavka.pdv_iznos = (kolicina * cijena + stavka.tarifa_iznos) * pdvPosto / 100;
+    stavka.iznos = kolicina * cijena + stavka.tarifa_iznos + stavka.pdv_iznos;
   });
 }
 
 async function pripremiGlavuZaUpis(glava, aktivnaGodina) {
-  const [dan, mjesec, godinaDatum] = glava.Datum.split(".");
-  glava.Datum = new Date(`${godinaDatum}-${mjesec}-${dan}`);
+  const [dan, mjesec, godinaDatum] = glava.datum.split(".");
+  glava.datum = new Date(`${godinaDatum}-${mjesec}-${dan}`);
 
   if (aktivnaGodina !== parseInt(godinaDatum)) {
     throw new Error("Datum računa nije u aktivnoj godini.");
   }
 
-  glava.Godina = aktivnaGodina;
+  glava.godina = aktivnaGodina;
 
-  const tarifa = await tarifaRepository.get(glava.TarifaId);
-  glava.TarifaStopa = parseInt(tarifa.Stopa);
-  console.log(glava.TarifaStopa);
+  const tarifa = await tarifaRepository.get(glava.tarifa_id);
+  glava.tarifa_stopa = parseInt(tarifa.stopa);
+  console.log(glava.tarifa_stopa);
 }
 
 async function save(req, res, next) {
@@ -119,22 +119,22 @@ async function save(req, res, next) {
     const { glava, stavke } = req.body;
     const firmaId = bl.getFirmaId(req);
 
-    let id = glava.RacunGlavaId ? parseInt(glava.RacunGlavaId) : null;
-    const config = await firmaRepository.get(firmaId);
+    let { id } = glava;
+    const firma = await firmaRepository.get(firmaId);
 
     if (id) {
       const racun = await racunRepository.get(id);
-      if (racun.RacunGlava.FirmaId !== firmaId ||
-        racun.RacunGlava.FirmaId !== parseInt(glava.FirmaId)) {
+      if (racun.racun_glava.firma_id !== firmaId ||
+        racun.racun_glava.firma_id !== parseInt(glava.firma_id)) {
         throw new Error("Kriva firma.");
       }
 
-      await pripremiGlavuZaUpis(glava, config.AktivnaGodina);
+      await pripremiGlavuZaUpis(glava, firma.aktivna_godina);
       pripremiStavkeZaUpis(glava, stavke);
 
-      const nove = dajNove(racun.RacunStavkaCollection, stavke);
-      const izmjenjene = dajIzmjenjene(racun.RacunStavkaCollection, stavke);
-      const obrisane = dajObrisane(racun.RacunStavkaCollection, stavke);
+      const nove = dajNove(racun.racunStavkaCollection, stavke);
+      const izmjenjene = dajIzmjenjene(racun.racunStavkaCollection, stavke);
+      const obrisane = dajObrisane(racun.racunStavkaCollection, stavke);
 
       await Promise.all([
         racunRepository.insert(trx, glava, nove),
@@ -142,12 +142,11 @@ async function save(req, res, next) {
         racunRepository.remove(trx, glava, obrisane),
       ]);
     } else {
-      glava.FirmaId = firmaId;
+      glava.firma_id = firmaId;
 
-      const brojRacuna = await brojacRepository.sljedeciBroj(trx, firmaId, "racun", config.AktivnaGodina);
-      glava.BrojRacuna = brojRacuna;
+      glava.broj_racuna = await brojacRepository.sljedeciBroj(trx, firmaId, "racun", firma.aktivna_godina);
 
-      await pripremiGlavuZaUpis(glava, config.AktivnaGodina);
+      await pripremiGlavuZaUpis(glava, firma.aktivna_godina);
       pripremiStavkeZaUpis(glava, stavke);
       id = await racunRepository.insertGlava(trx, glava);
       await racunRepository.insertStavke(trx, id, stavke);
