@@ -6,7 +6,7 @@ app.controller("PartnerController", ["$scope", function ($scope) {
     $scope.newPartner = function () {
         var fn = function () {
             $scope.selectedPartner = {};
-            $scope.selectedPartner.Valuta = 15;
+            $scope.selectedPartner.valuta = 15;
         };
 
         ninjaSoftware.angularjs.safeApply($scope, fn);
@@ -14,8 +14,8 @@ app.controller("PartnerController", ["$scope", function ($scope) {
 
     $scope.isSelectedPartnerNew = function () {
         if ($scope.selectedPartner &&
-			$scope.selectedPartner.PartnerId &&
-			$scope.selectedPartner.PartnerId > 0) {
+			$scope.selectedPartner.id &&
+			$scope.selectedPartner.id > 0) {
             return false;
         }
         else {
@@ -38,8 +38,8 @@ app.controller("PartnerController", ["$scope", function ($scope) {
         }
     };
 
-    $scope.loadPartner = function (partnerId) {
-        var partner = enioNg.api.partner.getById(partnerId);
+    $scope.loadPartner = function (id) {
+        var partner = enioNg.api.partner.getById(id);
 
         if (partner) {
             var fn = function () {
@@ -65,8 +65,8 @@ app.controller("PartnerController", ["$scope", function ($scope) {
     };
 
     $scope.validation.isNazivValid = function () {
-        if ($scope.selectedPartner.Naziv) {
-            return $scope.selectedPartner.Naziv.trim().length < 101;
+        if ($scope.selectedPartner.naziv) {
+            return $scope.selectedPartner.naziv.trim().length < 101;
         }
         else {
             return true;
@@ -74,8 +74,8 @@ app.controller("PartnerController", ["$scope", function ($scope) {
     };
 
     $scope.validation.isNazivExist = function () {
-        if ($scope.selectedPartner.Naziv) {
-            return $scope.selectedPartner.Naziv.trim().length > 0;
+        if ($scope.selectedPartner.naziv) {
+            return $scope.selectedPartner.naziv.trim().length > 0;
         }
         else {
             return false;
@@ -83,8 +83,8 @@ app.controller("PartnerController", ["$scope", function ($scope) {
     };
 
     $scope.validation.isOibValid = function () {
-        if ($scope.selectedPartner.Oib) {
-            var oibLength = $scope.selectedPartner.Oib.trim().length;
+        if ($scope.selectedPartner.oib) {
+            var oibLength = $scope.selectedPartner.oib.trim().length;
             return oibLength === 11 || oibLength === 0;
         }
         else {
@@ -93,8 +93,8 @@ app.controller("PartnerController", ["$scope", function ($scope) {
     };
 
     $scope.validation.isAdresaValid = function () {
-        if ($scope.selectedPartner.Adresa) {
-            return $scope.selectedPartner.Adresa.trim().length < 101;
+        if ($scope.selectedPartner.adresa) {
+            return $scope.selectedPartner.adresa.trim().length < 101;
         }
         else {
             return true;
@@ -102,8 +102,8 @@ app.controller("PartnerController", ["$scope", function ($scope) {
     };
 
     $scope.validation.isMjestoValid = function () {
-        if ($scope.selectedPartner.Mjesto) {
-            return $scope.selectedPartner.Mjesto.trim().length < 21;
+        if ($scope.selectedPartner.mjesto) {
+            return $scope.selectedPartner.mjesto.trim().length < 21;
         }
         else {
             return true;
@@ -111,8 +111,8 @@ app.controller("PartnerController", ["$scope", function ($scope) {
     };
 
     $scope.validation.isPostaValid = function () {
-        if ($scope.selectedPartner.Posta) {
-            return $scope.selectedPartner.Posta.trim().length < 11;
+        if ($scope.selectedPartner.posta) {
+            return $scope.selectedPartner.posta.trim().length < 11;
         }
         else {
             return true;
@@ -120,8 +120,8 @@ app.controller("PartnerController", ["$scope", function ($scope) {
     };
 
     $scope.validation.isValutaValid = function () {
-        if ($scope.selectedPartner.Valuta) {
-            return ($scope.selectedPartner.Valuta >= 0 && $scope.selectedPartner.Valuta < 65000);
+        if ($scope.selectedPartner.valuta) {
+            return ($scope.selectedPartner.valuta >= 0 && $scope.selectedPartner.valuta < 65000);
         }
         else {
             return false;

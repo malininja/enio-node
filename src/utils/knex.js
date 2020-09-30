@@ -1,10 +1,6 @@
 const knex = require("../configs/knex");
 const parsers = require("./type-parsers");
 
-async function getId() {
-  return (await knex.raw("select nextval('\"GenericSequence\"')")).rows[0].nextval;
-}
-
 function whereBuilder(additionalFilters, jqGridQuery, fieldTypes) {
   const { filters } = jqGridQuery;
 
@@ -53,4 +49,4 @@ function getData(knex, reqQuery, table, whereBuilder, pageSize, offset) {
   return query.limit(pageSize).offset(offset);
 }
 
-module.exports = { getId, whereBuilder, getCount, getData };
+module.exports = { whereBuilder, getCount, getData };

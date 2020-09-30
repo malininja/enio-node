@@ -8,7 +8,7 @@ if (!knex) {
       host: '127.0.0.1',
       user: 'postgres',
       password: '1234',
-      database: 'enio_node',
+      database: 'enio_node_v2',
     }
   });
   

@@ -13,8 +13,8 @@
 
     $scope.isSelectedTarifaNew = function () {
         if ($scope.selectedTarifa &&
-            $scope.selectedTarifa.TarifaId &&
-            $scope.selectedTarifa.TarifaId > 0) {
+            $scope.selectedTarifa.id &&
+            $scope.selectedTarifa.id > 0) {
             return false;
         } else {
             return true;
@@ -36,12 +36,12 @@
         }
     };
 
-    $scope.loadTarifa = function (tarifaId) {
-        var tarifa = enioNg.api.tarifa.getById(tarifaId);
+    $scope.loadTarifa = function (id) {
+        var tarifa = enioNg.api.tarifa.getById(id);
 
         if (tarifa) {
             var fn = function () {
-                tarifa.Stopa = ninjaSoftware.formatNo.toHrCurrencyFormat(tarifa.Stopa);
+                tarifa.stopa = ninjaSoftware.formatNo.toHrCurrencyFormat(tarifa.stopa);
                 $scope.selectedTarifa = tarifa;
             };
 
@@ -59,20 +59,20 @@
     };
 
     $scope.validation.isNazivExist = function () {
-        return ninjaSoftware.angularjs.isObjectExist($scope.selectedTarifa.Naziv);
+        return ninjaSoftware.angularjs.isObjectExist($scope.selectedTarifa.naziv);
     };
 
     $scope.validation.isNazivValid = function () {
-        if ($scope.selectedTarifa.Naziv) {
-            return $scope.selectedTarifa.Naziv.trim().length < 101;
+        if ($scope.selectedTarifa.naziv) {
+            return $scope.selectedTarifa.naziv.trim().length < 101;
         } else {
             return true;
         }
     };
 
     $scope.validation.isStopaValid = function () {
-        if (ninjaSoftware.validation.isHrNumeric($scope.selectedTarifa.Stopa)) {
-            var stopa = ninjaSoftware.parser.parseHrFloat($scope.selectedTarifa.Stopa);
+        if (ninjaSoftware.validation.isHrNumeric($scope.selectedTarifa.stopa)) {
+            var stopa = ninjaSoftware.parser.parseHrFloat($scope.selectedTarifa.stopa);
             return stopa >= 0 && stopa < 100;
         } else {
             return false;

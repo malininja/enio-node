@@ -13,7 +13,7 @@
 
     $scope.save = function () {
         if ($scope.validation.isValid()) {
-            $scope.selectedPdv.Stopa = $scope.selectedPdv.Stopa.toString();
+            $scope.selectedPdv.stopa = $scope.selectedPdv.stopa.toString();
 
             var isSaved = enioNg.api.pdv.save($scope.selectedPdv);
 
@@ -33,7 +33,7 @@
 
         if (pdv) {
             var fn = function () {
-                pdv.Stopa = ninjaSoftware.formatNo.toHrCurrencyFormat(pdv.Stopa);
+                pdv.stopa = ninjaSoftware.formatNo.toHrCurrencyFormat(pdv.stopa);
                 $scope.selectedPdv = pdv;
             };
 
@@ -52,24 +52,24 @@
     };
 
     $scope.validation.isNazivValid = function () {
-        if ($scope.selectedPdv.Naziv) {
-            return $scope.selectedPdv.Naziv.trim().length < 129;
+        if ($scope.selectedPdv.naziv) {
+            return $scope.selectedPdv.naziv.trim().length < 129;
         } else {
             return true;
         }
     };
 
     $scope.validation.isNazivExist = function () {
-        if ($scope.selectedPdv.Naziv) {
-            return $scope.selectedPdv.Naziv.trim().length > 0;
+        if ($scope.selectedPdv.naziv) {
+            return $scope.selectedPdv.naziv.trim().length > 0;
         } else {
             return false;
         }
     };
 
     $scope.validation.isStopaValid = function () {
-        if (ninjaSoftware.validation.isHrNumeric($scope.selectedPdv.Stopa)) {
-            var stopa = ninjaSoftware.parser.parseHrFloat($scope.selectedPdv.Stopa);
+        if (ninjaSoftware.validation.isHrNumeric($scope.selectedPdv.stopa)) {
+            var stopa = ninjaSoftware.parser.parseHrFloat($scope.selectedPdv.stopa);
             return (stopa >= 0 && stopa < 100);
         } else {
             return false;

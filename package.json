@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "nodemon ./src/index.js",
     "start": "node ./src/index.js",
-    "lint": "eslint --fix ./src/api"
+    "lint": "eslint --fix ./src/api",
+    "seed": "./node_modules/.bin/knex seed:run"
   },
   "dependencies": {
     "body-parser": "^1.19.0",

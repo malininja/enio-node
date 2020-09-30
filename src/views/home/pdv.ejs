@@ -16,7 +16,7 @@
                 <tr>
                     <td>Naziv:</td>
                     <td>
-                        <input ng-model="selectedPdv.Naziv" />
+                        <input ng-model="selectedPdv.naziv" />
                     </td>
                     <td>
                         <span class="validation" name="RequiredField" ng-show="!validation.isNazivExist()"></span>
@@ -26,7 +26,7 @@
                 <tr>
                     <td>Stopa:</td>
                     <td>
-                        <input ng-model="selectedPdv.Stopa" />
+                        <input ng-model="selectedPdv.stopa" />
                     </td>
                     <td>
                         <span class="validation" ng-show="!validation.isStopaValid()">Neispravna stopa PDV-a</span>
@@ -82,11 +82,11 @@
     $("#PdvTable").jqGrid({
         url: "/api/pdv",
         datatype: "json",
-        colNames: ["PdvId", "Naziv", "Stopa"],
+        colNames: ["id", "naziv", "stopa"],
         colModel: [
-            { name: "PdvId", index: "PdvId", hidden: true, width: 0 },
-            { name: "Naziv", index: "Naziv", width: 250, searchoptions: { clearSearch: false } },
-            { name: "Stopa", index: "Stopa", width: 200, align: "right", formatter: "number", formatoptions: { decimalSeparator: ",", decimalPlaces: 2 },
+            { name: "id", index: "id", hidden: true, width: 0 },
+            { name: "naziv", index: "naziv", width: 250, searchoptions: { clearSearch: false } },
+            { name: "stopa", index: "stopa", width: 200, align: "right", formatter: "number", formatoptions: { decimalSeparator: ",", decimalPlaces: 2 },
             	searchoptions: { clearSearch: false } }
         ],
         pager: "#PdvTablePager",
@@ -94,7 +94,7 @@
         onSelectRow: function (id) {
             var rowData = $(this).getRowData(id);
             var scope = getNgControllerScope();
-            scope.loadPdv(rowData["PdvId"]);
+            scope.loadPdv(rowData["id"]);
             openPdvDialog();
         },
         height: 'auto'

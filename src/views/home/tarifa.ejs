@@ -16,7 +16,7 @@
                 <tr>
                     <td>Naziv:</td>
                     <td>
-                        <input ng-model="selectedTarifa.Naziv" />
+                        <input ng-model="selectedTarifa.naziv" />
                     </td>
                     <td>
                         <span class="validation" name="RequiredField" ng-show="!validation.isNazivExist()"></span>
@@ -27,7 +27,7 @@
                 <tr>
                     <td>Tarifa:</td>
                     <td>
-                        <input ng-model="selectedTarifa.Stopa" />
+                        <input ng-model="selectedTarifa.stopa" />
                     </td>
                     <td>
                         <span class="validation" ng-show="!validation.isStopaValid()">Neispravna tarifna stopa.</span>
@@ -36,7 +36,7 @@
                 <tr ng-show="!isSelectedTarifaNew()">
                     <td>Aktivna:</td>
                     <td>
-                        <input type="checkbox" ng-model="selectedTarifa.IsActive" />
+                        <input type="checkbox" ng-model="selectedTarifa.active" />
                     </td>
                     <td></td>
                 </tr>
@@ -90,16 +90,16 @@
     $("#TarifaTable").jqGrid({
         url: "/api/tarifa",
         datatype: "json",
-        colNames: ["TarifaId", "Naziv", "Stopa", "IsActive"],
+        colNames: ["TarifaId", "Naziv", "Stopa", "Aktivna"],
         colModel: [
-            { name: "TarifaId", index: "TarifaId", hidden: true, width: 0 },
-            { name: "Naziv", index: "Naziv", width: 250, searchoptions: { clearSearch: false } },
+            { name: "id", index: "id", hidden: true, width: 0 },
+            { name: "naziv", index: "naziv", width: 250, searchoptions: { clearSearch: false } },
             {
-                name: "Stopa", index: "Stopa", width: 200, align: "right", formatter: "number", formatoptions: { decimalSeparator: ",", decimalPlaces: 2 },
+                name: "stopa", index: "stopa", width: 200, align: "right", formatter: "number", formatoptions: { decimalSeparator: ",", decimalPlaces: 2 },
                 searchoptions: { clearSearch: false }
             },
             {
-                name: "IsActive", index: "IsActive", width: 50, formatter: "select", editoptions: { value: "true:Da;false:Ne" }, align: "center", stype: "select",
+                name: "active", index: "active", width: 50, formatter: "select", editoptions: { value: "true:Da;false:Ne" }, align: "center", stype: "select",
                 searchoptions: { sopt: ["eq"], value: ":--;True:Da;False:Ne", clearSearch: false }
             }
         ],
@@ -108,7 +108,7 @@
         onSelectRow: function (id) {
             var rowData = $(this).getRowData(id);
             var scope = getNgControllerScope();
-            scope.loadTarifa(rowData["TarifaId"]);
+            scope.loadTarifa(rowData["id"]);
             openTarifaDialog();
         },
         height: 'auto'

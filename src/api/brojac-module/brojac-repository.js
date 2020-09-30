@@ -1,40 +1,35 @@
-const knexUtils = require("../../utils/knex");
-
-async function sljedeciBroj(trx, firmaId, naziv, godina) {
+async function sljedeciBroj(trx, firma_id, naziv, godina) {
   if (!godina) godina = 0;
 
-  const brojaci = await trx("Brojac").where({
-    FirmaId: firmaId,
-    Naziv: naziv,
-    Godina: godina,
+  const brojaci = await trx("brojac").where({
+    firma_id,
+    naziv,
+    godina,
   });
 
   if (brojaci.length) {
     const brojac = brojaci[0];
-    const slijedeciBroj = brojac.SlijedeciBroj + 1;
+    const slijedeciBroj = brojac.slijedeci_broj + 1;
 
-    await trx("Brojac")
+    await trx("brojac")
       .where({
-        FirmaId: firmaId,
-        Naziv: naziv,
-        Godina: godina,
-        ConcurrencyGuid: brojac.ConcurrencyGuid,
+        firma_id,
+        naziv,
+        godina,
+        timestamp: brojac.timestamp,
       })
-      .update({ SlijedeciBroj: slijedeciBroj, ConcurrencyGuid: (new Date()).getTime() });
+      .update({ slijedeci_broj: slijedeciBroj, timestamp: (new Date()).getTime() });
     
     return slijedeciBroj;
   }
 
-  const id = await knexUtils.getId();
-
-  await trx("Brojac")
+  await trx("brojac")
     .insert({
-      BrojacId: id,
-      FirmaId: firmaId,
-      Naziv: naziv,
-      Godina: godina,
-      SlijedeciBroj: 1,
-      ConcurrencyGuid: (new Date()).getTime(),
+      firma_id,
+      naziv,
+      godina,
+      slijedeci_broj: 1,
+      timestamp: (new Date()).getTime(),
     });
   
   return 1;

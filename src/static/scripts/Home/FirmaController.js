@@ -1,30 +1,30 @@
-app.controller("ConfigController", ["$scope", function ($scope) {
+app.controller("FirmaController", ["$scope", function ($scope) {
     var _me = {};
 
-    $scope.config = {};
+    $scope.firma = {};
 
-    $scope.loadConfig = function () {
-        var config = enioNg.api.config.get();
+    $scope.loadFirma = function () {
+        var firma = enioNg.api.firma.get();
 
-        if (config) {
+        if (firma) {
             var fn = function () {
-                $scope.config = config;
+                $scope.firma = firma;
             }
 
             ninjaSoftware.angularjs.safeApply($scope, fn);
-            $(document).trigger("ConfigIsLoaded");
+            $(document).trigger("FirmaIsLoaded");
         } else {
             alert(enioNg.textResources.dataFetchError);
         }
     };
 
-    $scope.saveConfig = function () {
+    $scope.saveFirma = function () {
         if ($scope.validation.isValid()) {
-            var isSaved = enioNg.api.config.save($scope.config);
+            var isSaved = enioNg.api.firma.save($scope.firma);
 
             if (isSaved) {
-                $(document).trigger("ConfigIsSaved");
-                $scope.loadConfig();
+                $(document).trigger("FirmaIsSaved");
+                $scope.loadFirma();
             } else {
                 alert(enioNg.textResources.dataSaveError);
             }
@@ -33,7 +33,7 @@ app.controller("ConfigController", ["$scope", function ($scope) {
         }
     };
 
-    $scope.loadConfig();
+    $scope.loadFirma();
 
     $scope.validation = {};
 
@@ -42,7 +42,7 @@ app.controller("ConfigController", ["$scope", function ($scope) {
     };
 
     $scope.validation.isAktivnaGodinaValid = function () {
-        var godina = $scope.config.AktivnaGodina;
+        var godina = $scope.firma.aktivna_godina;
 
         if (ninjaSoftware.validation.isNumeric(godina)) {
             if (godina >= 2005 && godina <= 2025) {

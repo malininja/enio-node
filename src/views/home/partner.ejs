@@ -16,7 +16,7 @@
                 <tr>
                     <td>Naziv:</td>
                     <td>
-                        <input ng-model="selectedPartner.Naziv" />
+                        <input ng-model="selectedPartner.naziv" />
                     </td>
                     <td>
                         <span class="validation" name="RequiredField" ng-show="!validation.isNazivExist()"></span>
@@ -26,7 +26,7 @@
                 <tr>
                     <td>OIB:</td>
                     <td>
-                        <input ng-model="selectedPartner.Oib" />
+                        <input ng-model="selectedPartner.oib" />
                     </td>
                     <td>
                         <span class="validation" ng-show="!validation.isOibValid()">OIB mora imati 11 znakova</span>
@@ -35,7 +35,7 @@
                 <tr>
                     <td>Adresa:</td>
                     <td>
-                        <input ng-model="selectedPartner.Adresa" />
+                        <input ng-model="selectedPartner.adresa" />
                     </td>
                     <td>
                         <span class="validation" ng-show="!validation.isAdresaValid()">Adresa ne može imati više od 100 znakova</span>
@@ -44,7 +44,7 @@
                 <tr>
                     <td>Mjesto:</td>
                     <td>
-                        <input ng-model="selectedPartner.Mjesto" />
+                        <input ng-model="selectedPartner.mjesto" />
                     </td>
                     <td>
                         <span class="validation" ng-show="!validation.isMjestoValid()">Mjesto ne može imati više od 20 znakova</span>
@@ -53,7 +53,7 @@
                 <tr>
                     <td>Pošta:</td>
                     <td>
-                        <input ng-model="selectedPartner.Posta" />
+                        <input ng-model="selectedPartner.posta" />
                     </td>
                     <td>
                         <span class="validation" ng-show="!validation.isPostaValid()">Pošta ne može imati više od 10 znakova</span>
@@ -62,7 +62,7 @@
                 <tr>
                     <td>Valuta:</td>
                     <td>
-                        <input type="number" ng-model="selectedPartner.Valuta" />
+                        <input type="number" ng-model="selectedPartner.valuta" />
                     </td>
                     <td>
                         <span class="validation" ng-show="!validation.isValutaValid()">Neispravna valuta</span>
@@ -71,7 +71,7 @@
                 <tr ng-show="!isSelectedPartnerNew()">
                     <td>Aktivan:</td>
                     <td>
-                        <input type="checkbox" ng-model="selectedPartner.IsActive" />
+                        <input type="checkbox" ng-model="selectedPartner.active" />
                     </td>
                     <td></td>
                 </tr>
@@ -127,14 +127,14 @@
             datatype: "json",
             colNames: ["PartnerId", "Naziv", "OIB", "Adresa", "Mjesto", "Pošta", "Valuta", "Aktivan"],
             colModel: [
-                { name: "PartnerId", index: "PartnerId", hidden: true, width: 0 },
-                { name: "Naziv", index: "Naziv", width: 250, searchoptions: { clearSearch: false } },
-                { name: "Oib", index: "Oib", width: 90, align: "center", searchoptions: { clearSearch: false } },
-                { name: "Adresa", index: "Adresa", width: 200, searchoptions: { clearSearch: false } },
-                { name: "Mjesto", index: "Mjesto", width: 100, searchoptions: { clearSearch: false } },
-                { name: "Posta", index: "Posta", width: 70, searchoptions: { clearSearch: false } },
-                { name: "Valuta", index: "Valuta", width: 50, align: "center", searchoptions: { clearSearch: false } },
-                { name: "IsActive", index: "IsActive", width: 55, formatter: 'select', editoptions: { value: 'true:Da;false:Ne'}, 
+                { name: "id", index: "id", hidden: true, width: 0 },
+                { name: "naziv", index: "naziv", width: 250, searchoptions: { clearSearch: false } },
+                { name: "oib", index: "oib", width: 90, align: "center", searchoptions: { clearSearch: false } },
+                { name: "adresa", index: "adresa", width: 200, searchoptions: { clearSearch: false } },
+                { name: "mjesto", index: "mjesto", width: 100, searchoptions: { clearSearch: false } },
+                { name: "posta", index: "posta", width: 70, searchoptions: { clearSearch: false } },
+                { name: "valuta", index: "valuta", width: 50, align: "center", searchoptions: { clearSearch: false } },
+                { name: "active", index: "active", width: 55, formatter: 'select', editoptions: { value: 'true:Da;false:Ne'}, 
                     stype: "select", searchoptions: { sopt: ["eq"], value: ":--;True:Da;False:Ne", clearSearch: false }, align: "center" }
             ],
             pager: "#PartnerTablePager",
@@ -142,7 +142,7 @@
             onSelectRow: function (id) {
                 var rowData = $(this).getRowData(id);
                 var scope = getNgControllerScope();
-                scope.loadPartner(rowData["PartnerId"]);
+                scope.loadPartner(rowData["id"]);
                 openPartnerDialog();
             },
             height: 'auto'

@@ -1,5 +1,5 @@
 const express = require("express");
-const controller = require("./config-controller");
+const controller = require("./firma-controller");
 
 const router = new express.Router();
 

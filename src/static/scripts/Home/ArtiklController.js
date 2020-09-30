@@ -13,8 +13,8 @@ app.controller("ArtiklController", ["$scope", function ($scope) {
 
     $scope.isSelectedArtiklNew = function () {
         if ($scope.selectedArtikl &&
-			$scope.selectedArtikl.ArtiklId &&
-			$scope.selectedArtikl.ArtiklId > 0) {
+			$scope.selectedArtikl.id &&
+			$scope.selectedArtikl.id > 0) {
             return false;
         } else {
             return true;
@@ -24,7 +24,7 @@ app.controller("ArtiklController", ["$scope", function ($scope) {
     $scope.save = function () {
         if ($scope.validation.isValid()) {
 
-            $scope.selectedArtikl.Cijena = $scope.selectedArtikl.Cijena.toString();
+            $scope.selectedArtikl.cijena = $scope.selectedArtikl.cijena.toString();
 
             var isSaved = enioNg.api.artikl.save($scope.selectedArtikl);
 
@@ -44,7 +44,7 @@ app.controller("ArtiklController", ["$scope", function ($scope) {
 
         if (artikl) {
             var fn = function () {
-                artikl.Cijena = ninjaSoftware.formatNo.toHrCurrencyFormat(artikl.Cijena);
+                artikl.cijena = ninjaSoftware.formatNo.toHrCurrencyFormat(artikl.cijena);
                 $scope.selectedArtikl = artikl;
             };
 
@@ -85,8 +85,8 @@ app.controller("ArtiklController", ["$scope", function ($scope) {
 
 
     $scope.validation.isJmValid = function () {
-        if ($scope.selectedArtikl.Jm) {
-            return $scope.selectedArtikl.Jm.trim().length < 11;
+        if ($scope.selectedArtikl.jm) {
+            return $scope.selectedArtikl.jm.trim().length < 11;
         }
         else {
             return true;
@@ -94,31 +94,31 @@ app.controller("ArtiklController", ["$scope", function ($scope) {
     };
 
     $scope.validation.isJmExist = function () {
-        return ninjaSoftware.angularjs.isObjectExist($scope.selectedArtikl.Jm);
+        return ninjaSoftware.angularjs.isObjectExist($scope.selectedArtikl.jm);
     };
 
     $scope.validation.isNazivValid = function () {
-        if ($scope.selectedArtikl.Naziv) {
-            return $scope.selectedArtikl.Naziv.trim().length < 101;
+        if ($scope.selectedArtikl.naziv) {
+            return $scope.selectedArtikl.naziv.trim().length < 101;
         } else {
             return true;
         }
     };
 
     $scope.validation.isNazivExist = function () {
-        return ninjaSoftware.angularjs.isObjectExist($scope.selectedArtikl.Naziv);
+        return ninjaSoftware.angularjs.isObjectExist($scope.selectedArtikl.naziv);
     };
 
     $scope.validation.isCijenaValid = function () {
-        return ninjaSoftware.validation.isHrNumeric($scope.selectedArtikl.Cijena);
+        return ninjaSoftware.validation.isHrNumeric($scope.selectedArtikl.cijena);
     }
 
     $scope.validation.isCijenaExist = function () {
-        return ninjaSoftware.angularjs.isObjectExist($scope.selectedArtikl.Cijena);
+        return ninjaSoftware.angularjs.isObjectExist($scope.selectedArtikl.cijena);
     };
 
     $scope.validation.isPdvExist = function () {
-        return ninjaSoftware.angularjs.isObjectExist($scope.selectedArtikl.PdvId);
+        return ninjaSoftware.angularjs.isObjectExist($scope.selectedArtikl.pdv_id);
     }
 
     return _me;

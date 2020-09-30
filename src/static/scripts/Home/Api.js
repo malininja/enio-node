@@ -57,29 +57,29 @@ enioNg.api.artikl.getAll = function () {
 	return artiklCollection;
 };
 
-// CONFIG
-enioNg.api.config = enioNg.api.config || {};
+// FIRMA
+enioNg.api.firma = enioNg.api.firma || {};
 
-enioNg.api.config.get = function () {
-	var config;
+enioNg.api.firma.get = function () {
+	var firma;
 
 	ninjaSoftware.ajaxHelper.getJson({
-		url: "/api/config",
+		url: "/api/firma",
 		success: function (result) {
-			config = result;
+			firma = result;
 		},
 		error: enioNg.api.errorFn
 	});
 
-	return config;
+	return firma;
 };
 
-enioNg.api.config.save = function (config) {
+enioNg.api.firma.save = function (firma) {
 	var isSaved = false;
 
 	ninjaSoftware.ajaxHelper.postJson({
-		url: "/api/config",
-		jsonObject: config,
+		url: "/api/firma",
+		jsonObject: firma,
 		success: function (result) {
 			isSaved = result;
 		},

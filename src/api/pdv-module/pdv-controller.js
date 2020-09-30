@@ -8,49 +8,58 @@ async function getAll(req, res, next) {
   const { query } = req;
   const { pageSize, offset } = jqGrid.getPagingData(query);
 
-  const firmaId = bl.getFirmaId(req);
-  const filters = [{ field: "Pdv.FirmaId", value: firmaId }];
-  const builder = knexUtils.whereBuilder(filters, query, { "Stopa": "numeric" });
-
-  let countPromise = knexUtils.getCount(knex, "Pdv", builder);
-  let pdvsPromise = knexUtils.getData(knex, query, "Pdv", builder, pageSize, offset);
-  const [count, pdvs] = await Promise.all([countPromise, pdvsPromise]);
-
-  res.send(jqGrid.getResponse(pdvs, count, query));
-  return next();
+  try {
+    const firmaId = bl.getFirmaId(req);
+    const filters = [{ field: "pdv.firma_id", value: firmaId }];
+    const builder = knexUtils.whereBuilder(filters, query, { "stopa": "numeric" });
+  
+    let countPromise = knexUtils.getCount(knex, "pdv", builder);
+    let pdvsPromise = knexUtils.getData(knex, query, "pdv", builder, pageSize, offset);
+    const [count, pdvs] = await Promise.all([countPromise, pdvsPromise]);
+  
+    res.send(jqGrid.getResponse(pdvs, count, query));
+    return next(); 
+  } catch (err) {
+    return next(err);
+  }
 }
 
 async function get(req, res, next) {
   const { id } = req.params;
 
-  const pdvs = await knex("Pdv").where("PdvId", id);
-  let pdv = null;
-  if (pdvs.length === 1) pdv = pdvs[0];
-
-  res.send(pdv);
-  return next();
+  try {
+    const pdvs = await knex("pdv").where("id", id);
+    let pdv = null;
+    if (pdvs.length === 1) pdv = pdvs[0];
+  
+    res.send(pdv);
+    return next();    
+  } catch (err) {
+    return next(err); 
+  }
 }
 
 async function save(req, res, next) {
-  const { PdvId, Naziv, Stopa: stopaString, ConcurrencyGuid } = req.body;
-  const Stopa = typeParser.parseCurrency(stopaString);
-
   let recordCount = 1;
 
-  if (PdvId) {
-    recordCount = await knex("Pdv")
-      .where({ PdvId, ConcurrencyGuid })
-      .update(({ Naziv, Stopa, ConcurrencyGuid: (new Date()).getTime() }));
-  } else {
-    const id = await knexUtils.getId();
-
-    await knex("Pdv").insert({
-      PdvId: id,
-      Naziv,
-      Stopa,
-      FirmaId: bl.getFirmaId(req),
-      ConcurrencyGuid: (new Date()).getTime(),
-    });
+  try {
+    const { id, naziv, stopa: stopaString, timestamp } = req.body;
+    const stopa = typeParser.parseCurrency(stopaString);
+  
+    if (id) {
+      recordCount = await knex("pdv")
+        .where({ id, timestamp })
+        .update(({ naziv, stopa, timestamp: (new Date()).getTime() }));
+    } else {
+      await knex("pdv").insert({
+        naziv,
+        stopa,
+        firma_id: bl.getFirmaId(req),
+        timestamp: (new Date()).getTime(),
+      });
+    }
+  } catch (err) {
+    return next(err);
   }
 
   res.send(recordCount === 1);

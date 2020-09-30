@@ -3,61 +3,69 @@ const knexUtils = require("../../utils/knex");
 const typeParser = require("../../utils/type-parsers");
 const jqGrid = require("../../utils/jqGrid");
 const bl = require("../../utils/bl");
+const repository = require("./tarifa-repository");
 
 async function getAll(req, res, next) {
   const { query } = req;
   const { pageSize, offset } = jqGrid.getPagingData(query);
 
-  const firmaId = bl.getFirmaId(req);
-  const filters = [{ field: "Tarifa.FirmaId", value: firmaId }];
-  const fieldTypes = { "Stopa": "numeric", "IsActive": "boolean" };
-  const builder = knexUtils.whereBuilder(filters, query, fieldTypes);
-
-  let countPromise = knexUtils.getCount(knex, "Tarifa", builder);
-  let tarifsPromise = knexUtils.getData(knex, query, "Tarifa", builder, pageSize, offset);
-  const [count, tarifs] = await Promise.all([countPromise, tarifsPromise]);
-
-  res.send(jqGrid.getResponse(tarifs, count, query));
-  return next();
+  try {
+    const firmaId = bl.getFirmaId(req);
+    const filters = [{ field: "tarifa.firma_id", value: firmaId }];
+    const fieldTypes = { "stopa": "numeric", "active": "boolean" };
+    const builder = knexUtils.whereBuilder(filters, query, fieldTypes);
+  
+    let countPromise = knexUtils.getCount(knex, "tarifa", builder);
+    let tarifsPromise = knexUtils.getData(knex, query, "tarifa", builder, pageSize, offset);
+    const [count, tarifs] = await Promise.all([countPromise, tarifsPromise]);
+  
+    res.send(jqGrid.getResponse(tarifs, count, query));
+    return next(); 
+  } catch (err) {
+    return next(err);
+  }
 }
 
 async function get(req, res, next) {
   const { id } = req.params;
 
-  const tarife = await knex("Tarifa").where("TarifaId", id);
-  let tarifa = null;
-  if (tarife.length === 1) tarifa = tarife[0];
-
-  res.send(tarifa);
-  return next();
+  try {
+    const tarifa = await repository.get(id);
+    res.send(tarifa);
+    return next(); 
+  } catch (err) {
+    return next(err);
+  }
 }
 
 async function save(req, res, next) {
-  const { TarifaId, Naziv, Stopa: stopaString, IsActive: isActiveString, ConcurrencyGuid } = req.body;
-  const Stopa = typeParser.parseCurrency(stopaString);
-  const IsActive = typeParser.parseBool(isActiveString);
+  const { id, naziv, stopa: stopaString, active: activeString, timestamp } = req.body;
 
-  let recordCount = 1;
-
-  if (TarifaId) {
-    recordCount = await knex("Tarifa")
-      .where({ TarifaId, ConcurrencyGuid })
-      .update(({ Naziv, Stopa, IsActive, ConcurrencyGuid: (new Date()).getTime() }));
-  } else {
-    const id = await knexUtils.getId();
-
-    await knex("Tarifa").insert({
-      TarifaId: id,
-      Naziv,
-      Stopa,
-      IsActive: true,
-      FirmaId: bl.getFirmaId(req),
-      ConcurrencyGuid: (new Date()).getTime(),
-    });
+  try {
+    const stopa = typeParser.parseCurrency(stopaString);
+    const active = typeParser.parseBool(activeString);
+  
+    let recordCount = 1;
+  
+    if (id) {
+      recordCount = await knex("tarifa")
+        .where({ id, timestamp })
+        .update(({ naziv, stopa, active, timestamp: (new Date()).getTime() }));
+    } else {
+      await knex("tarifa").insert({
+        naziv,
+        stopa,
+        active: true,
+        firma_id: bl.getFirmaId(req),
+        timestamp: (new Date()).getTime(),
+      });
+    }
+  
+    res.send(recordCount === 1);
+    return next(); 
+  } catch (err) {
+    return next(err);
   }
-
-  res.send(recordCount === 1);
-  return next();
 }
 
 module.exports = { getAll, get, save };
