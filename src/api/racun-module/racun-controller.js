@@ -1,3 +1,4 @@
+const Pdfkit = require('pdfkit');
 const knex = require('../../configs/knex');
 const knexUtils = require('../../utils/knex');
 const typeParser = require('../../utils/type-parsers');
@@ -160,4 +161,18 @@ async function save(req, res, next) {
   }
 }
 
-module.exports = { get, getAll, save };
+async function report(req, res, next) {
+  try {
+    const a;
+    const font = './fonts/LiberationSans-Regular.ttf';
+    const doc = new Pdfkit();
+    doc.fontSize(14).font(font).text('ideš đurđa .......');
+    doc.pipe(res);
+    doc.end();
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+}
+
+module.exports = { get, getAll, save, report };
