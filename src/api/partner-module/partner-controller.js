@@ -1,8 +1,8 @@
-const knex = require("../../configs/knex");
-const knexUtils = require("../../utils/knex");
-const typeParser = require("../../utils/type-parsers");
-const jqGrid = require("../../utils/jqGrid");
-const bl = require("../../utils/bl");
+const knex = require('../../configs/knex');
+const knexUtils = require('../../utils/knex');
+const typeParser = require('../../utils/type-parsers');
+const jqGrid = require('../../utils/jqGrid');
+const bl = require('../../utils/bl');
 
 async function getAll(req, res, next) {
   const { query } = req;
@@ -11,12 +11,12 @@ async function getAll(req, res, next) {
     const { pageSize, offset } = jqGrid.getPagingData(query);
 
     const firmaId = bl.getFirmaId(req);
-    const filters = [{ field: "partner.firma_id", value: firmaId }];
-    const fieldTypes = { "Valuta": "numeric", "active": "boolean" };
+    const filters = [{ field: 'partner.firma_id', value: firmaId }];
+    const fieldTypes = { Valuta: 'numeric', active: 'boolean' };
     const builder = knexUtils.whereBuilder(filters, query, fieldTypes);
 
-    let countPromise = knexUtils.getCount(knex, "partner", builder);
-    let tarifsPromise = knexUtils.getData(knex, query, "partner", builder, pageSize, offset);
+    const countPromise = knexUtils.getCount(knex, 'partner', builder);
+    const tarifsPromise = knexUtils.getData(knex, query, 'partner', builder, pageSize, offset);
     const [count, tarifs] = await Promise.all([countPromise, tarifsPromise]);
 
     res.send(jqGrid.getResponse(tarifs, count, query));
@@ -30,9 +30,9 @@ async function get(req, res, next) {
   const { id } = req.params;
 
   try {
-    const partneri = await knex("partner").where("id", id);
+    const partneri = await knex('partner').where('id', id);
     let partner = null;
-    if (partneri.length === 1) partner = partneri[0];
+    if (partneri.length === 1) [partner] = partneri;
 
     res.send(partner);
     return next();
@@ -42,7 +42,17 @@ async function get(req, res, next) {
 }
 
 async function save(req, res, next) {
-  const { id, adresa, timestamp, mjesto, naziv, oib, posta, valuta: valutaString, active: activeString } = req.body;
+  const {
+    id,
+    adresa,
+    timestamp,
+    mjesto,
+    naziv,
+    oib,
+    posta,
+    valuta: valutaString,
+    active: activeString,
+  } = req.body;
 
   try {
     const valuta = typeParser.parseCurrency(valutaString);
@@ -51,17 +61,26 @@ async function save(req, res, next) {
     let recordCount = 1;
 
     if (id) {
-      recordCount = await knex("partner")
+      recordCount = await knex('partner')
         .where({ id, timestamp })
-        .update(({ adresa, mjesto, naziv, oib, posta, valuta, active, timestamp: (new Date()).getTime() }));
+        .update(({
+          adresa,
+          mjesto,
+          naziv,
+          oib,
+          posta,
+          valuta,
+          active,
+          timestamp: (new Date()).getTime(),
+        }));
     } else {
-      await knex("partner").insert({
+      await knex('partner').insert({
         adresa,
         mjesto,
         naziv,
         oib,
         posta,
-        valuta: valuta,
+        valuta,
         active: true,
         firma_id: bl.getFirmaId(req),
         timestamp: (new Date()).getTime(),

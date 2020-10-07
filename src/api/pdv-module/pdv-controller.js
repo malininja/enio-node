@@ -1,8 +1,8 @@
-const knex = require("../../configs/knex");
-const knexUtils = require("../../utils/knex");
-const typeParser = require("../../utils/type-parsers");
-const jqGrid = require("../../utils/jqGrid");
-const bl = require("../../utils/bl");
+const knex = require('../../configs/knex');
+const knexUtils = require('../../utils/knex');
+const typeParser = require('../../utils/type-parsers');
+const jqGrid = require('../../utils/jqGrid');
+const bl = require('../../utils/bl');
 
 async function getAll(req, res, next) {
   const { query } = req;
@@ -10,15 +10,15 @@ async function getAll(req, res, next) {
 
   try {
     const firmaId = bl.getFirmaId(req);
-    const filters = [{ field: "pdv.firma_id", value: firmaId }];
-    const builder = knexUtils.whereBuilder(filters, query, { "stopa": "numeric" });
-  
-    let countPromise = knexUtils.getCount(knex, "pdv", builder);
-    let pdvsPromise = knexUtils.getData(knex, query, "pdv", builder, pageSize, offset);
+    const filters = [{ field: 'pdv.firma_id', value: firmaId }];
+    const builder = knexUtils.whereBuilder(filters, query, { stopa: 'numeric' });
+
+    const countPromise = knexUtils.getCount(knex, 'pdv', builder);
+    const pdvsPromise = knexUtils.getData(knex, query, 'pdv', builder, pageSize, offset);
     const [count, pdvs] = await Promise.all([countPromise, pdvsPromise]);
-  
+
     res.send(jqGrid.getResponse(pdvs, count, query));
-    return next(); 
+    return next();
   } catch (err) {
     return next(err);
   }
@@ -28,14 +28,14 @@ async function get(req, res, next) {
   const { id } = req.params;
 
   try {
-    const pdvs = await knex("pdv").where("id", id);
+    const pdvs = await knex('pdv').where('id', id);
     let pdv = null;
-    if (pdvs.length === 1) pdv = pdvs[0];
-  
+    if (pdvs.length === 1) [pdv] = pdvs;
+
     res.send(pdv);
-    return next();    
+    return next();
   } catch (err) {
-    return next(err); 
+    return next(err);
   }
 }
 
@@ -45,13 +45,13 @@ async function save(req, res, next) {
   try {
     const { id, naziv, stopa: stopaString, timestamp } = req.body;
     const stopa = typeParser.parseCurrency(stopaString);
-  
+
     if (id) {
-      recordCount = await knex("pdv")
+      recordCount = await knex('pdv')
         .where({ id, timestamp })
         .update(({ naziv, stopa, timestamp: (new Date()).getTime() }));
     } else {
-      await knex("pdv").insert({
+      await knex('pdv').insert({
         naziv,
         stopa,
         firma_id: bl.getFirmaId(req),

@@ -1,9 +1,9 @@
-const knex = require("../../configs/knex");
-const knexUtils = require("../../utils/knex");
-const typeParser = require("../../utils/type-parsers");
-const jqGrid = require("../../utils/jqGrid");
-const bl = require("../../utils/bl");
-const repository = require("./tarifa-repository");
+const knex = require('../../configs/knex');
+const knexUtils = require('../../utils/knex');
+const typeParser = require('../../utils/type-parsers');
+const jqGrid = require('../../utils/jqGrid');
+const bl = require('../../utils/bl');
+const repository = require('./tarifa-repository');
 
 async function getAll(req, res, next) {
   const { query } = req;
@@ -11,16 +11,16 @@ async function getAll(req, res, next) {
 
   try {
     const firmaId = bl.getFirmaId(req);
-    const filters = [{ field: "tarifa.firma_id", value: firmaId }];
-    const fieldTypes = { "stopa": "numeric", "active": "boolean" };
+    const filters = [{ field: 'tarifa.firma_id', value: firmaId }];
+    const fieldTypes = { stopa: 'numeric', active: 'boolean' };
     const builder = knexUtils.whereBuilder(filters, query, fieldTypes);
-  
-    let countPromise = knexUtils.getCount(knex, "tarifa", builder);
-    let tarifsPromise = knexUtils.getData(knex, query, "tarifa", builder, pageSize, offset);
+
+    const countPromise = knexUtils.getCount(knex, 'tarifa', builder);
+    const tarifsPromise = knexUtils.getData(knex, query, 'tarifa', builder, pageSize, offset);
     const [count, tarifs] = await Promise.all([countPromise, tarifsPromise]);
-  
+
     res.send(jqGrid.getResponse(tarifs, count, query));
-    return next(); 
+    return next();
   } catch (err) {
     return next(err);
   }
@@ -32,7 +32,7 @@ async function get(req, res, next) {
   try {
     const tarifa = await repository.get(id);
     res.send(tarifa);
-    return next(); 
+    return next();
   } catch (err) {
     return next(err);
   }
@@ -44,15 +44,15 @@ async function save(req, res, next) {
   try {
     const stopa = typeParser.parseCurrency(stopaString);
     const active = typeParser.parseBool(activeString);
-  
+
     let recordCount = 1;
-  
+
     if (id) {
-      recordCount = await knex("tarifa")
+      recordCount = await knex('tarifa')
         .where({ id, timestamp })
         .update(({ naziv, stopa, active, timestamp: (new Date()).getTime() }));
     } else {
-      await knex("tarifa").insert({
+      await knex('tarifa').insert({
         naziv,
         stopa,
         active: true,
@@ -60,9 +60,9 @@ async function save(req, res, next) {
         timestamp: (new Date()).getTime(),
       });
     }
-  
+
     res.send(recordCount === 1);
-    return next(); 
+    return next();
   } catch (err) {
     return next(err);
   }

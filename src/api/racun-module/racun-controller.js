@@ -1,12 +1,12 @@
-const knex = require("../../configs/knex");
-const knexUtils = require("../../utils/knex");
-const typeParser = require("../../utils/type-parsers");
-const jqGrid = require("../../utils/jqGrid");
-const bl = require("../../utils/bl");
-const brojacRepository = require("../brojac-module/brojac-repository");
-const racunRepository = require("./racun-repository");
-const firmaRepository = require("../firma-module/firma-repository");
-const tarifaRepository = require("../tarifa-module/tarifa-repository");
+const knex = require('../../configs/knex');
+const knexUtils = require('../../utils/knex');
+const typeParser = require('../../utils/type-parsers');
+const jqGrid = require('../../utils/jqGrid');
+const bl = require('../../utils/bl');
+const brojacRepository = require('../brojac-module/brojac-repository');
+const racunRepository = require('./racun-repository');
+const firmaRepository = require('../firma-module/firma-repository');
+const tarifaRepository = require('../tarifa-module/tarifa-repository');
 
 async function get(req, res, next) {
   try {
@@ -27,20 +27,20 @@ async function getAll(req, res, next) {
   const { pageSize, offset } = jqGrid.getPagingData(query);
 
   const firmaId = bl.getFirmaId(req);
-  const filters = [{ field: "racun_glava.firma_id", value: firmaId }];
+  const filters = [{ field: 'racun_glava.firma_id', value: firmaId }];
 
-  const fieldTypes = { "broj_racuna": "numeric", "status_id": "numeric" };
+  const fieldTypes = { broj_racuna: 'numeric', status_id: 'numeric' };
   const builder = knexUtils.whereBuilder(filters, query, fieldTypes);
 
-  let countPromise = knexUtils.getCount(knex, "racun_glava", builder);
-  let racunGlavePromise = knexUtils.getData(knex, query, "racun_glava", builder, pageSize, offset);
-  racunGlavePromise.innerJoin("partner", "racun_glava.partner_id", "partner.id");
-  racunGlavePromise.innerJoin("firma", join => {
-    join.on("racun_glava.firma_id", "firma.id")
-      .andOn("racun_glava.godina", "firma.aktivna_godina");
+  const countPromise = knexUtils.getCount(knex, 'racun_glava', builder);
+  const racunGlavePromise = knexUtils.getData(knex, query, 'racun_glava', builder, pageSize, offset);
+  racunGlavePromise.innerJoin('partner', 'racun_glava.partner_id', 'partner.id');
+  racunGlavePromise.innerJoin('firma', (join) => {
+    join.on('racun_glava.firma_id', 'firma.id')
+      .andOn('racun_glava.godina', 'firma.aktivna_godina');
   });
 
-  racunGlavePromise.select("racun_glava.*", "partner.naziv as partner_naziv");
+  racunGlavePromise.select('racun_glava.*', 'partner.naziv as partner_naziv');
 
   const [count, racunGlave] = await Promise.all([countPromise, racunGlavePromise]);
 
@@ -50,9 +50,9 @@ async function getAll(req, res, next) {
 
 function dajObrisane(stare, trenutne) {
   const obrisane = [];
-  const noveIds = trenutne.map(s => s.id);
+  const noveIds = trenutne.map((s) => s.id);
 
-  stare.forEach(s => {
+  stare.forEach((s) => {
     if (!noveIds.includes(s.id)) obrisane.push(s);
   });
 
@@ -61,9 +61,9 @@ function dajObrisane(stare, trenutne) {
 
 function dajNove(stare, trenutne) {
   const nove = [];
-  const stareIds = stare.map(s => s.id);
+  const stareIds = stare.map((s) => s.id);
 
-  trenutne.forEach(s => {
+  trenutne.forEach((s) => {
     if (!stareIds.includes(s.id)) nove.push(s);
   });
 
@@ -72,9 +72,9 @@ function dajNove(stare, trenutne) {
 
 function dajIzmjenjene(stare, trenutne) {
   const izmjenjene = [];
-  const stareIds = stare.map(s => s.id);
+  const stareIds = stare.map((s) => s.id);
 
-  trenutne.forEach(s => {
+  trenutne.forEach((s) => {
     if (stareIds.includes(s.id)) izmjenjene.push(s);
   });
 
@@ -82,7 +82,7 @@ function dajIzmjenjene(stare, trenutne) {
 }
 
 function pripremiStavkeZaUpis(glava, stavke) {
-  stavke.forEach(stavka => {
+  stavke.forEach((stavka) => {
     delete stavka.$$hashKey;
     delete stavka.artikl;
     stavka.kolicina = typeParser.parseCurrency(stavka.kolicina);
@@ -98,18 +98,17 @@ function pripremiStavkeZaUpis(glava, stavke) {
 }
 
 async function pripremiGlavuZaUpis(glava, aktivnaGodina) {
-  const [dan, mjesec, godinaDatum] = glava.datum.split(".");
+  const [dan, mjesec, godinaDatum] = glava.datum.split('.');
   glava.datum = new Date(`${godinaDatum}-${mjesec}-${dan}`);
 
-  if (aktivnaGodina !== parseInt(godinaDatum)) {
-    throw new Error("Datum računa nije u aktivnoj godini.");
+  if (aktivnaGodina !== parseInt(godinaDatum, 10)) {
+    throw new Error('Datum računa nije u aktivnoj godini.');
   }
 
   glava.godina = aktivnaGodina;
 
   const tarifa = await tarifaRepository.get(glava.tarifa_id);
-  glava.tarifa_stopa = parseInt(tarifa.stopa);
-  console.log(glava.tarifa_stopa);
+  glava.tarifa_stopa = parseInt(tarifa.stopa, 10);
 }
 
 async function save(req, res, next) {
@@ -124,9 +123,9 @@ async function save(req, res, next) {
 
     if (id) {
       const racun = await racunRepository.get(id);
-      if (racun.racun_glava.firma_id !== firmaId ||
-        racun.racun_glava.firma_id !== parseInt(glava.firma_id)) {
-        throw new Error("Kriva firma.");
+      if (racun.racun_glava.firma_id !== firmaId
+        || racun.racun_glava.firma_id !== parseInt(glava.firma_id, 10)) {
+        throw new Error('Kriva firma.');
       }
 
       await pripremiGlavuZaUpis(glava, firma.aktivna_godina);
@@ -144,7 +143,7 @@ async function save(req, res, next) {
     } else {
       glava.firma_id = firmaId;
 
-      glava.broj_racuna = await brojacRepository.sljedeciBroj(trx, firmaId, "racun", firma.aktivna_godina);
+      glava.broj_racuna = await brojacRepository.sljedeciBroj(trx, firmaId, 'racun', firma.aktivna_godina);
 
       await pripremiGlavuZaUpis(glava, firma.aktivna_godina);
       pripremiStavkeZaUpis(glava, stavke);

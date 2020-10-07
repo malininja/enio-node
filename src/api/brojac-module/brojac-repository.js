@@ -1,8 +1,8 @@
-async function sljedeciBroj(trx, firma_id, naziv, godina) {
+async function sljedeciBroj(trx, firmaId, naziv, godina) {
   if (!godina) godina = 0;
 
-  const brojaci = await trx("brojac").where({
-    firma_id,
+  const brojaci = await trx('brojac').where({
+    firma_id: firmaId,
     naziv,
     godina,
   });
@@ -11,27 +11,27 @@ async function sljedeciBroj(trx, firma_id, naziv, godina) {
     const brojac = brojaci[0];
     const slijedeciBroj = brojac.slijedeci_broj + 1;
 
-    await trx("brojac")
+    await trx('brojac')
       .where({
-        firma_id,
+        firma_id: firmaId,
         naziv,
         godina,
         timestamp: brojac.timestamp,
       })
       .update({ slijedeci_broj: slijedeciBroj, timestamp: (new Date()).getTime() });
-    
+
     return slijedeciBroj;
   }
 
-  await trx("brojac")
+  await trx('brojac')
     .insert({
-      firma_id,
+      firma_id: firmaId,
       naziv,
       godina,
       slijedeci_broj: 1,
       timestamp: (new Date()).getTime(),
     });
-  
+
   return 1;
 }
 

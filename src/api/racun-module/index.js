@@ -1,10 +1,10 @@
-const express = require("express");
-const controller = require("./racun-controller");
+const express = require('express');
+const controller = require('./racun-controller');
 
 const router = new express.Router();
 
-router.get("/:id", controller.get);
-router.get("", controller.getAll);
-router.post("", controller.save);
+router.get('/:id', controller.get);
+router.get('', controller.getAll);
+router.post('', controller.save);
 
 module.exports = router;

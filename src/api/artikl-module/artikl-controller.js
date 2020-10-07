@@ -1,8 +1,8 @@
-const knex = require("../../configs/knex");
-const knexUtils = require("../../utils/knex");
-const typeParser = require("../../utils/type-parsers");
-const jqGrid = require("../../utils/jqGrid");
-const bl = require("../../utils/bl");
+const knex = require('../../configs/knex');
+const knexUtils = require('../../utils/knex');
+const typeParser = require('../../utils/type-parsers');
+const jqGrid = require('../../utils/jqGrid');
+const bl = require('../../utils/bl');
 
 async function getAll(req, res, next) {
   try {
@@ -10,14 +10,14 @@ async function getAll(req, res, next) {
     const { pageSize, offset } = jqGrid.getPagingData(query);
 
     const firmaId = bl.getFirmaId(req);
-    const filters = [{ field: "artikl.firma_id", value: firmaId }];
-    const fieldTypes = { "cijena": "numeric", "active": "boolean" };
+    const filters = [{ field: 'artikl.firma_id', value: firmaId }];
+    const fieldTypes = { cijena: 'numeric', active: 'boolean' };
     const builder = knexUtils.whereBuilder(filters, query, fieldTypes);
 
-    let countPromise = knexUtils.getCount(knex, "artikl", builder);
-    let artikliPromise = knexUtils.getData(knex, query, "artikl", builder, pageSize, offset);
-    artikliPromise.innerJoin("pdv", "artikl.pdv_id", "pdv.id");
-    artikliPromise.select("artikl.*", "pdv.stopa as pdv_stopa");
+    const countPromise = knexUtils.getCount(knex, 'artikl', builder);
+    const artikliPromise = knexUtils.getData(knex, query, 'artikl', builder, pageSize, offset);
+    artikliPromise.innerJoin('pdv', 'artikl.pdv_id', 'pdv.id');
+    artikliPromise.select('artikl.*', 'pdv.stopa as pdv_stopa');
 
     const [count, artikli] = await Promise.all([countPromise, artikliPromise]);
 
@@ -32,9 +32,9 @@ async function get(req, res, next) {
   try {
     const { id } = req.params;
 
-    const artikli = await knex("artikl").where("id", id);
+    const artikli = await knex('artikl').where('id', id);
     let artikl = null;
-    if (artikli.length === 1) artikl = artikli[0];
+    if (artikli.length === 1) [artikl] = artikli;
 
     res.send(artikl);
     return next();
@@ -45,21 +45,29 @@ async function get(req, res, next) {
 
 async function save(req, res, next) {
   try {
-    const { id, jm, naziv, pdv_id, active: isActiveString, cijena: cijenaString, timestamp } = req.body;
+    const {
+      id,
+      jm,
+      naziv,
+      pdv_id: pdvId,
+      active: isActiveString,
+      cijena: cijenaString,
+      timestamp,
+    } = req.body;
     const cijena = typeParser.parseCurrency(cijenaString);
     const active = typeParser.parseBool(isActiveString);
 
     let recordCount = 1;
 
     if (id) {
-      recordCount = await knex("artikl")
+      recordCount = await knex('artikl')
         .where({ id, timestamp })
-        .update(({ jm, naziv, pdv_id, active, cijena, timestamp: (new Date()).getTime() }));
+        .update(({ jm, naziv, pdv_id: pdvId, active, cijena, timestamp: (new Date()).getTime() }));
     } else {
-      await knex("artikl").insert({
+      await knex('artikl').insert({
         jm,
         naziv,
-        pdv_id,
+        pdv_id: pdvId,
         cijena,
         active: true,
         firma_id: bl.getFirmaId(req),

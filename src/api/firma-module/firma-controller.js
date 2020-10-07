@@ -1,5 +1,5 @@
-const repository = require("./firma-repository");
-const bl = require("../../utils/bl");
+const repository = require('./firma-repository');
+const bl = require('../../utils/bl');
 
 async function get(req, res, next) {
   try {
