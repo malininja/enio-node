@@ -8,19 +8,14 @@ async function get(firmaId) {
 }
 
 function save(firmaId, firma) {
-  const { naziv, adresa, mjesto, oib, zr, aktivna_godina: aktivnaGodina, timestamp } = firma;
+  const { timestamp } = firma;
 
   return knex('firma')
     .where({ id: firmaId, timestamp })
-    .update(({
-      naziv,
-      adresa,
-      mjesto,
-      oib,
-      zr,
-      aktivna_godina: aktivnaGodina,
+    .update({
+      ...firma,
       timestamp: (new Date()).getTime(),
-    }));
+    });
 }
 
 module.exports = { get, save };

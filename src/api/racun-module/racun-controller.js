@@ -1,4 +1,3 @@
-const Pdfkit = require('pdfkit');
 const knex = require('../../configs/knex');
 const knexUtils = require('../../utils/knex');
 const typeParser = require('../../utils/type-parsers');
@@ -8,6 +7,7 @@ const brojacRepository = require('../brojac-module/brojac-repository');
 const racunRepository = require('./racun-repository');
 const firmaRepository = require('../firma-module/firma-repository');
 const tarifaRepository = require('../tarifa-module/tarifa-repository');
+const racunReport = require("./reports/racun");
 
 async function get(req, res, next) {
   try {
@@ -163,10 +163,13 @@ async function save(req, res, next) {
 
 async function report(req, res, next) {
   try {
-    const a;
-    const font = './fonts/LiberationSans-Regular.ttf';
-    const doc = new Pdfkit();
-    doc.fontSize(14).font(font).text('ideš đurđa .......');
+    const { id } = req.params;
+    const firmaId = bl.getFirmaId(req);
+
+    const firma = await firmaRepository.get(firmaId);
+    const racun = await racunRepository.get(id);
+    
+    const doc = racunReport(firma, racun);    
     doc.pipe(res);
     doc.end();
     return next();
