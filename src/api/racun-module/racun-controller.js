@@ -7,7 +7,8 @@ const brojacRepository = require('../brojac-module/brojac-repository');
 const racunRepository = require('./racun-repository');
 const firmaRepository = require('../firma-module/firma-repository');
 const tarifaRepository = require('../tarifa-module/tarifa-repository');
-const racunReport = require("./reports/racun");
+const partnerRepository = require('../partner-module/partner-repository');
+const racunReport = require('./reports/racun');
 
 async function get(req, res, next) {
   try {
@@ -166,10 +167,13 @@ async function report(req, res, next) {
     const { id } = req.params;
     const firmaId = bl.getFirmaId(req);
 
-    const firma = await firmaRepository.get(firmaId);
-    const racun = await racunRepository.get(id);
-    
-    const doc = racunReport(firma, racun);    
+    const [firma, racun] = await Promise.all([
+      firmaRepository.get(firmaId),
+      racunRepository.get(id),
+    ]);
+    const partner = await partnerRepository.get(racun.racunGlava.partner_id);
+
+    const doc = racunReport(firma, racun, partner);
     doc.pipe(res);
     doc.end();
     return next();

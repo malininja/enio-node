@@ -3,6 +3,7 @@ const knexUtils = require('../../utils/knex');
 const typeParser = require('../../utils/type-parsers');
 const jqGrid = require('../../utils/jqGrid');
 const bl = require('../../utils/bl');
+const repository = require('./partner-repository');
 
 async function getAll(req, res, next) {
   const { query } = req;
@@ -30,10 +31,7 @@ async function get(req, res, next) {
   const { id } = req.params;
 
   try {
-    const partneri = await knex('partner').where('id', id);
-    let partner = null;
-    if (partneri.length === 1) [partner] = partneri;
-
+    const partner = await repository.get(id);
     res.send(partner);
     return next();
   } catch (err) {
