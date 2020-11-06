@@ -1,6 +1,6 @@
 const http = require("http");
 const express = require("express");
-const apiRouter = require("./api");
+const apiRouter = require("./server/api");
 const homeRouter = require("./home-router");
 const path = require('path');
 const bodyParser = require("body-parser");

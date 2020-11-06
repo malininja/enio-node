@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "nodemon ./src/index.js",
     "start": "node ./src/index.js",
-    "lint": "eslint --fix ./src/api",
+    "lint": "eslint --fix ./src/server",
     "seed": "./node_modules/.bin/knex seed:run",
     "precommit": "lint-staged"
   },

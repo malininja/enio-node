@@ -1,5 +1,6 @@
 const Pdfkit = require('pdfkit');
 const dateformat = require('dateformat');
+const status = require('../../../enums/status');
 
 function getRacunReport(firma, racun, partner) {
   const { naziv, adresa, mjesto, oib, pdv_id: pdvId, zr } = firma;
@@ -13,7 +14,7 @@ function getRacunReport(firma, racun, partner) {
       right: 50,
       top: 50,
       bottom: 80,
-    }
+    },
   };
   const doc = new Pdfkit(pageConfig);
   doc.fontSize(12)
@@ -35,7 +36,7 @@ function getRacunReport(firma, racun, partner) {
 
   const {
     datum,
-    status_id: status,
+    status_id: statusId,
     zaglavlje,
     broj_racuna: brojRacuna,
     mjesto_rada_naziv: mjestoRada,
@@ -55,8 +56,8 @@ function getRacunReport(firma, racun, partner) {
     .text(`OIB: ${partner.oib}`, 300, 255)
     .text(`Datum: ${dateformat(datum, 'dd.mm.yyyy.')}`, 50, 270)
     .text(`Mjesto rada: ${mjestoRada}`, 300, 270)
-    .text(status, 50, 285)
-    .text(`Adresa rada: ${adresaRada}`, 300, 285) ;
+    .text(status.find((s) => s.id === statusId).name, 50, 285)
+    .text(`Adresa rada: ${adresaRada}`, 300, 285);
 
   return doc;
 }

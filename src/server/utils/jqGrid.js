@@ -1,8 +1,8 @@
 function getPagingData(query) {
   const { rows, page } = query;
 
-  const pageSize = parseInt(rows);
-  const pageNo = parseInt(page);
+  const pageSize = parseInt(rows, 10);
+  const pageNo = parseInt(page, 10);
   const offset = pageSize * (pageNo - 1);
 
   return { pageSize, pageNo, offset };

@@ -1,5 +1,5 @@
 function parseCurrency(data) {
-  return parseFloat(data.toString().replace(".", "").replace(",", "."));
+  return parseFloat(data.toString().replace('.', '').replace(',', '.'));
 }
 
 function parseBool(data) {

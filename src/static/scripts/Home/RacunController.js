@@ -7,7 +7,7 @@ app.controller("RacunController", ["$scope", function ($scope) {
         datum: dateString,
         vrijeme: "12:00",
         je_pdv_racun: true,
-        status_id: "2"
+        status_id: 2
     };
 
     $scope.newRacunStavka = {};
@@ -90,11 +90,11 @@ app.controller("RacunController", ["$scope", function ($scope) {
     _me.loadStatusCollection = function () {
         var fn = function () {
             $scope.statusCollection = [
-                { code: "Paid", name: "Plaćen", id: "1" },
-                { code: "Unpaid", name: "Neplaćen", id: "2" },
-                { code: "Cancelled", name: "Storniran", id: "3" },
-                { code: "WriteOff", name: "Otpis", id: "4" },
-                { code: "Blockade", name: "Blokada", id: "5" },
+                { code: "Paid", name: "Plaćen", id: 1 },
+                { code: "Unpaid", name: "Neplaćen", id: 2 },
+                { code: "Cancelled", name: "Storniran", id: 3 },
+                { code: "WriteOff", name: "Otpis", id: 4 },
+                { code: "Blockade", name: "Blokada", id: 5 },
             ];
         };
 

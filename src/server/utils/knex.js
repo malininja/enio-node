@@ -1,13 +1,11 @@
-const knex = require("../configs/knex");
-const parsers = require("./type-parsers");
+const parsers = require('./type-parsers');
 
 function whereBuilder(additionalFilters, jqGridQuery, fieldTypes) {
   const { filters } = jqGridQuery;
 
   let rules;
-  let builder;
-  builder = queryBuilder => {
-    additionalFilters.forEach(filter => {
+  return (queryBuilder) => {
+    additionalFilters.forEach((filter) => {
       const { field, operator, value } = filter;
 
       if (operator) queryBuilder.andWhere(field, operator, value);
@@ -17,34 +15,32 @@ function whereBuilder(additionalFilters, jqGridQuery, fieldTypes) {
     if (filters) {
       ({ rules } = JSON.parse(filters));
 
-      rules.forEach(rule => {
+      rules.forEach((rule) => {
         const { field, data } = rule;
 
-        if (fieldTypes && fieldTypes[field] === "numeric") {
+        if (fieldTypes && fieldTypes[field] === 'numeric') {
           const parsed = parsers.parseCurrency(data);
           queryBuilder.andWhere(field, parsed);
-        } else if (fieldTypes && fieldTypes[field] === "boolean") {
+        } else if (fieldTypes && fieldTypes[field] === 'boolean') {
           const parsed = parsers.parseBool(data);
           queryBuilder.andWhere(field, parsed);
         } else {
-          queryBuilder.andWhere(field, "like", `${data}%`);
+          queryBuilder.andWhere(field, 'like', `${data}%`);
         }
       });
     }
   };
-
-  return builder;
 }
 
-async function getCount(knex, table, whereBuilder) {
-  let count = await knex(table).where(whereBuilder).count();
+async function getCount(knex, table, builder) {
+  const count = await knex(table).where(builder).count();
   return count[0].count;
 }
 
-function getData(knex, reqQuery, table, whereBuilder, pageSize, offset) {
+function getData(knex, reqQuery, table, builder, pageSize, offset) {
   const { sidx, sord } = reqQuery;
 
-  let query = knex(table).where(whereBuilder);
+  const query = knex(table).where(builder);
   if (sidx) query.orderBy(sidx, sord);
   return query.limit(pageSize).offset(offset);
 }
