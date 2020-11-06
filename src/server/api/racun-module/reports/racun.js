@@ -2,6 +2,25 @@ const Pdfkit = require('pdfkit');
 const dateformat = require('dateformat');
 const status = require('../../../enums/status');
 
+function writeRow(doc, fontSize, font, y, tableDefinition, items) {
+  const getXForRight = (text, x) => {
+    const width = doc.fontSize(fontSize).font(font).widthOfString(text);
+    return x - width;
+  };
+
+  items.forEach((item, i) => {
+    const columnDefinition = tableDefinition.columns[i];
+    let x = tableDefinition.x + columnDefinition.x;
+    if (columnDefinition.align === 'right') {
+      x = getXForRight(item, x);
+    }
+
+    doc.fontSize(fontSize)
+      .font(font)
+      .text(item, x, y);
+  });
+}
+
 function getRacunReport(firma, racun, partner) {
   const { naziv, adresa, mjesto, oib, pdv_id: pdvId, zr } = firma;
 
@@ -59,6 +78,30 @@ function getRacunReport(firma, racun, partner) {
     .text(status.find((s) => s.id === statusId).name, 50, 285)
     .text(`Adresa rada: ${adresaRada}`, 300, 285);
 
+  const tableDefinition = {
+    x: 50,
+    rowHeight: 15,
+    columns: [
+      { x: 0, align: 'left' },
+      { x: 280, align: 'left' },
+      { x: 340, align: 'right' },
+      { x: 350, align: 'left' },
+      { x: 400, align: 'left' },
+    ],
+  };
+
+  // STAVKE
+  doc.fontSize(11)
+    .font(font)
+    .text('Artikl', 50, 315)
+    .text('JM', 330, 315)
+    .text('Količina', 360, 315)
+    .text('Tarifa (%)', 400, 315)
+    .text('Netto (kn)', 450, 315);
+
+  writeRow(doc, 11, font, 340, tableDefinition, ['Artikl', 'JM', 'Količina', 'Tarifa (%)', 'Netto (kn)']);
+  writeRow(doc, 11, font, 355, tableDefinition, ['Artikl', 'JM', 'Kol', 'Tarifa (%)', 'Netto (kn)']);
+  writeRow(doc, 11, font, 370, tableDefinition, ['Artikl', 'JM', 'Količinaaaaaaa', 'Tarifa (%)', 'Netto (kn)']);
   return doc;
 }
 
