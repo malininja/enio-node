@@ -125,8 +125,8 @@ async function save(req, res, next) {
 
     if (id) {
       const racun = await racunRepository.get(id);
-      if (racun.racun_glava.firma_id !== firmaId
-        || racun.racun_glava.firma_id !== parseInt(glava.firma_id, 10)) {
+      if (racun.racunGlava.firma_id !== firmaId
+        || racun.racunGlava.firma_id !== parseInt(glava.firma_id, 10)) {
         throw new Error('Kriva firma.');
       }
 
@@ -138,9 +138,9 @@ async function save(req, res, next) {
       const obrisane = dajObrisane(racun.racunStavkaCollection, stavke);
 
       await Promise.all([
-        racunRepository.insert(trx, glava, nove),
-        racunRepository.update(trx, glava, izmjenjene),
-        racunRepository.remove(trx, glava, obrisane),
+        racunRepository.insertStavke(trx, glava.id, nove),
+        racunRepository.updateStavke(trx, izmjenjene),
+        racunRepository.removeStavke(trx, obrisane),
       ]);
     } else {
       glava.firma_id = firmaId;
@@ -154,7 +154,7 @@ async function save(req, res, next) {
     }
 
     await trx.commit();
-    res.send(id);
+    res.send(id.toString());
     return next();
   } catch (error) {
     await trx.rollback();

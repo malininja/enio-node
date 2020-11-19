@@ -4,7 +4,7 @@ const status = require('../../../enums/status');
 
 function writeRow(doc, fontSize, font, y, tableDefinition, items) {
   const getXForRight = (text, x) => {
-    const width = doc.fontSize(fontSize).font(font).widthOfString(text);
+    const width = doc.fontSize(fontSize).font(font).widthOfString(text.toString());
     return x - width;
   };
 
@@ -60,6 +60,7 @@ function getRacunReport(firma, racun, partner) {
     broj_racuna: brojRacuna,
     mjesto_rada_naziv: mjestoRada,
     mjesto_rada_adresa: adresaRada,
+    tarifa_stopa: tarifaStopa,
   } = racun.racunGlava;
 
   doc.fontSize(11)
@@ -83,26 +84,59 @@ function getRacunReport(firma, racun, partner) {
     rowHeight: 15,
     columns: [
       { x: 0, align: 'left' },
-      { x: 280, align: 'left' },
+      { x: 280, align: 'right' },
       { x: 340, align: 'right' },
-      { x: 350, align: 'left' },
-      { x: 400, align: 'left' },
+      { x: 400, align: 'right' },
+      { x: 500, align: 'right' },
     ],
   };
 
   // STAVKE
+  writeRow(doc, 11, font, 315, tableDefinition, ['Artikl', 'JM', 'Količina', 'Tarifa (%)', 'Netto (kn)']);
+
+  racun.racunStavkaCollection.forEach((stavka, i) => {
+    const { artikl_id: artikl, kolicina, cijena } = stavka;
+    writeRow(doc, 11, font, 330 + i * 15, tableDefinition, [artikl, 'lol', kolicina, tarifaStopa, kolicina * cijena]);
+  });
+
+  const footerY = 330 + racun.racunStavkaCollection.length * 15;
+  writeRow(doc, 11, font, footerY, tableDefinition, ['', '', '', 'Netto vrijednost:', 666]);
+  writeRow(doc, 11, font, footerY + 15, tableDefinition, ['', '', '', 'Tarifa -ime tarife- (X.XX%):', 666]);
+  writeRow(doc, 11, font, footerY + 30, tableDefinition, ['', '', '', 'PDV XX.XX%::', 666]);
+  writeRow(doc, 11, fontBold, footerY + 45, tableDefinition, ['', '', '', 'Ukupno za platiti:', 666]);
+
+  doc.fontSize(11)
+    .font(fontBold)
+    .text('OBRAČUN PREMA NAPLAĆENIM NAKNADAMA', 50, footerY + 75);
+
   doc.fontSize(11)
     .font(font)
-    .text('Artikl', 50, 315)
-    .text('JM', 330, 315)
-    .text('Količina', 360, 315)
-    .text('Tarifa (%)', 400, 315)
-    .text('Netto (kn)', 450, 315);
+    .text('Kod plaćanja računa upišite poziv na broj: (99) XXXX-XXXX', 50, footerY + 105)
+    .text('Način plaćanja: transakcijski račun')
+    .text('Odgovorna osoba za izdavanje računa: XXXXXX XXXXXX')
+    .text('Datum: XX.XX.XXXX.  Vrijeme: XX:XX')
+    .text('Račun je izrađen na računalu i pravovaljan je bez pečata i potpisa.')
+    .text('   ')
+    .text('Registriran u Trgovačkom sudu u Zagrebu.')
+    .text('MBS: XXXXXXXXXXX')
+    .text('Temeljni kapital 20 000 kn je plaćen u cjelosti.')
+    .text('Član uprave: XXXXX XXXXX');
 
-  writeRow(doc, 11, font, 340, tableDefinition, ['Artikl', 'JM', 'Količina', 'Tarifa (%)', 'Netto (kn)']);
-  writeRow(doc, 11, font, 355, tableDefinition, ['Artikl', 'JM', 'Kol', 'Tarifa (%)', 'Netto (kn)']);
-  writeRow(doc, 11, font, 370, tableDefinition, ['Artikl', 'JM', 'Količinaaaaaaa', 'Tarifa (%)', 'Netto (kn)']);
   return doc;
 }
 
 module.exports = getRacunReport;
+/**
+ *
+artikl_id:1
+cijena:'66.66'
+id:1
+iznos:'166.65'
+kolicina:'2.00'
+pdv_iznos:'33.33'
+pdv_posto:'25.00'
+pozicija:0
+racun_glava_id:1
+tarifa_iznos:'0.00'
+timestamp:'1604328389772'
+ */
