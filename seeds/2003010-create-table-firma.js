@@ -14,6 +14,7 @@ exports.seed = async knex => {
     table.string("pdv_id", 50).notNullable();
     table.string("odgovorna_osoba", 50).notNullable();
     table.string("clan_uprave", 50).notNullable();
+    table.string("mbs", 50);
     table.string("timestamp").notNullable();
   });
 };

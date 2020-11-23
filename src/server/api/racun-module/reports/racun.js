@@ -22,7 +22,19 @@ function writeRow(doc, fontSize, font, y, tableDefinition, items) {
 }
 
 function getRacunReport(firma, racun, partner) {
-  const { naziv, adresa, mjesto, oib, pdv_id: pdvId, zr } = firma;
+  const { racunGlava: glava, racunStavkaCollection: stavke } = racun;
+
+  const {
+    naziv,
+    adresa,
+    mjesto,
+    oib,
+    pdv_id: pdvId,
+    zr,
+    odgovorna_osoba: odgovornaOsoba,
+    mbs,
+    clan_uprave: clanUprave,
+  } = firma;
 
   const font = './fonts/LiberationSans-Regular.ttf';
   const fontBold = './fonts/LiberationSans-Bold.ttf';
@@ -55,13 +67,15 @@ function getRacunReport(firma, racun, partner) {
 
   const {
     datum,
+    vrijeme,
     status_id: statusId,
     zaglavlje,
     broj_racuna: brojRacuna,
     mjesto_rada_naziv: mjestoRada,
     mjesto_rada_adresa: adresaRada,
     tarifa_stopa: tarifaStopa,
-  } = racun.racunGlava;
+    godina,
+  } = glava;
 
   doc.fontSize(11)
     .font(font)
@@ -94,16 +108,29 @@ function getRacunReport(firma, racun, partner) {
   // STAVKE
   writeRow(doc, 11, font, 315, tableDefinition, ['Artikl', 'JM', 'Količina', 'Tarifa (%)', 'Netto (kn)']);
 
-  racun.racunStavkaCollection.forEach((stavka, i) => {
-    const { artikl_id: artikl, kolicina, cijena } = stavka;
-    writeRow(doc, 11, font, 330 + i * 15, tableDefinition, [artikl, 'lol', kolicina, tarifaStopa, kolicina * cijena]);
+  let nettoTotal = 0;
+  const tarifaTotal = stavke.reduce((acc, cur) => acc + cur.tarifa_iznos, 0);
+  const pdvTotal = stavke.reduce((acc, cur) => acc + cur.pdv_iznos, 0);
+  const ukupno = stavke.reduce((acc, cur) => acc + cur.iznos, 0);
+
+  stavke.forEach((stavka, i) => {
+    const {
+      artikl_id: artikl,
+      kolicina,
+      cijena,
+    } = stavka;
+
+    const netto = kolicina * cijena;
+    nettoTotal += netto;
+
+    writeRow(doc, 11, font, 330 + i * 15, tableDefinition, [artikl, 'lol', kolicina, tarifaStopa, netto.toFixed(2)]);
   });
 
-  const footerY = 330 + racun.racunStavkaCollection.length * 15;
-  writeRow(doc, 11, font, footerY, tableDefinition, ['', '', '', 'Netto vrijednost:', 666]);
-  writeRow(doc, 11, font, footerY + 15, tableDefinition, ['', '', '', 'Tarifa -ime tarife- (X.XX%):', 666]);
-  writeRow(doc, 11, font, footerY + 30, tableDefinition, ['', '', '', 'PDV XX.XX%::', 666]);
-  writeRow(doc, 11, fontBold, footerY + 45, tableDefinition, ['', '', '', 'Ukupno za platiti:', 666]);
+  const footerY = 330 + stavke.length * 15;
+  writeRow(doc, 11, font, footerY, tableDefinition, ['', '', '', 'Netto vrijednost:', nettoTotal.toFixed(2)]);
+  writeRow(doc, 11, font, footerY + 15, tableDefinition, ['', '', '', 'Tarifa -ime tarife- (X.XX%):', tarifaTotal.toFixed(2)]);
+  writeRow(doc, 11, font, footerY + 30, tableDefinition, ['', '', '', 'PDV XX.XX%::', pdvTotal.toFixed(2)]);
+  writeRow(doc, 11, fontBold, footerY + 45, tableDefinition, ['', '', '', 'Ukupno za platiti:', ukupno.toFixed(2)]);
 
   doc.fontSize(11)
     .font(fontBold)
@@ -111,32 +138,18 @@ function getRacunReport(firma, racun, partner) {
 
   doc.fontSize(11)
     .font(font)
-    .text('Kod plaćanja računa upišite poziv na broj: (99) XXXX-XXXX', 50, footerY + 105)
+    .text(`Kod plaćanja računa upišite poziv na broj: (99) ${godina}-${brojRacuna}`, 50, footerY + 105)
     .text('Način plaćanja: transakcijski račun')
-    .text('Odgovorna osoba za izdavanje računa: XXXXXX XXXXXX')
-    .text('Datum: XX.XX.XXXX.  Vrijeme: XX:XX')
+    .text(`Odgovorna osoba za izdavanje računa: ${odgovornaOsoba}`)
+    .text(`Datum: ${dateformat(datum, 'dd.mm.yyyy.')}  Vrijeme: ${vrijeme}`)
     .text('Račun je izrađen na računalu i pravovaljan je bez pečata i potpisa.')
     .text('   ')
     .text('Registriran u Trgovačkom sudu u Zagrebu.')
-    .text('MBS: XXXXXXXXXXX')
+    .text(`MBS: ${mbs}`)
     .text('Temeljni kapital 20 000 kn je plaćen u cjelosti.')
-    .text('Član uprave: XXXXX XXXXX');
+    .text(`Član uprave: ${clanUprave}`);
 
   return doc;
 }
 
 module.exports = getRacunReport;
-/**
- *
-artikl_id:1
-cijena:'66.66'
-id:1
-iznos:'166.65'
-kolicina:'2.00'
-pdv_iznos:'33.33'
-pdv_posto:'25.00'
-pozicija:0
-racun_glava_id:1
-tarifa_iznos:'0.00'
-timestamp:'1604328389772'
- */
