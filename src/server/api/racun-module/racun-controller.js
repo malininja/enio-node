@@ -171,9 +171,14 @@ async function report(req, res, next) {
       firmaRepository.get(firmaId),
       racunRepository.get(id),
     ]);
-    const partner = await partnerRepository.get(racun.racunGlava.partner_id);
 
-    const doc = racunReport(firma, racun, partner);
+    const { partner_id: partnerId, tarifa_id: tarifaId } = racun.racunGlava;
+    const [partner, tarifa] = await Promise.all([
+      partnerRepository.get(partnerId),
+      tarifaRepository.get(tarifaId),
+    ]);
+
+    const doc = racunReport(firma, racun, partner, tarifa);
     doc.pipe(res);
     doc.end();
     return next();

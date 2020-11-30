@@ -21,7 +21,7 @@ function writeRow(doc, fontSize, font, y, tableDefinition, items) {
   });
 }
 
-function getRacunReport(firma, racun, partner) {
+function getRacunReport(firma, racun, partner, tarifa) {
   const { racunGlava: glava, racunStavkaCollection: stavke } = racun;
 
   const {
@@ -98,24 +98,23 @@ function getRacunReport(firma, racun, partner) {
     rowHeight: 15,
     columns: [
       { x: 0, align: 'left' },
-      { x: 280, align: 'right' },
-      { x: 340, align: 'right' },
-      { x: 400, align: 'right' },
+      { x: 310, align: 'right' },
+      { x: 370, align: 'right' },
+      { x: 430, align: 'right' },
       { x: 500, align: 'right' },
     ],
   };
 
   // STAVKE
   writeRow(doc, 11, font, 315, tableDefinition, ['Artikl', 'JM', 'Količina', 'Tarifa (%)', 'Netto (kn)']);
-
+  doc.moveTo(50, 330).lineTo(550, 330).stroke();
   let nettoTotal = 0;
   const tarifaTotal = stavke.reduce((acc, cur) => acc + cur.tarifa_iznos, 0);
-  const pdvTotal = stavke.reduce((acc, cur) => acc + cur.pdv_iznos, 0);
   const ukupno = stavke.reduce((acc, cur) => acc + cur.iznos, 0);
 
   stavke.forEach((stavka, i) => {
     const {
-      artikl_id: artikl,
+      artikl_id: artiklId,
       kolicina,
       cijena,
     } = stavka;
@@ -123,13 +122,27 @@ function getRacunReport(firma, racun, partner) {
     const netto = kolicina * cijena;
     nettoTotal += netto;
 
-    writeRow(doc, 11, font, 330 + i * 15, tableDefinition, [artikl, 'lol', kolicina, tarifaStopa, netto.toFixed(2)]);
+    writeRow(doc, 11, font, 330 + i * 15, tableDefinition, [artiklId, 'lol', kolicina, tarifaStopa, netto.toFixed(2)]);
   });
+
+  doc.moveTo(50, 330 + stavke.length * 15).lineTo(550, 330 + stavke.length * 15).stroke();
+
+  const pdvs = stavke.reduce((acc, cur) => {
+    const { pdv_posto: pdvPosto, pdv_iznos: pdvIznos } = cur;
+    const pdv = pdvPosto.toFixed(2);
+    if (!acc[pdv]) acc[pdv] = 0;
+    acc[pdv] += pdvIznos;
+    return acc;
+  }, {});
 
   const footerY = 330 + stavke.length * 15;
   writeRow(doc, 11, font, footerY, tableDefinition, ['', '', '', 'Netto vrijednost:', nettoTotal.toFixed(2)]);
-  writeRow(doc, 11, font, footerY + 15, tableDefinition, ['', '', '', 'Tarifa -ime tarife- (X.XX%):', tarifaTotal.toFixed(2)]);
-  writeRow(doc, 11, font, footerY + 30, tableDefinition, ['', '', '', 'PDV XX.XX%::', pdvTotal.toFixed(2)]);
+  writeRow(doc, 11, font, footerY + 15, tableDefinition, ['', '', '', `Tarifa ${tarifa.naziv} (${tarifaStopa}%):`, tarifaTotal.toFixed(2)]);
+
+  Object.keys(pdvs).forEach((k) => {
+    writeRow(doc, 11, font, footerY + 30, tableDefinition, ['', '', '', `PDV ${k}%:`, pdvs[k].toFixed(2)]);
+  });
+
   writeRow(doc, 11, fontBold, footerY + 45, tableDefinition, ['', '', '', 'Ukupno za platiti:', ukupno.toFixed(2)]);
 
   doc.fontSize(11)
