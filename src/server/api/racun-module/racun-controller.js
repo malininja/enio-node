@@ -173,13 +173,16 @@ async function report(req, res, next) {
       racunRepository.get(id),
     ]);
 
+    const artiklIds = racun.racunStavkaCollection.map((s) => s.artikl_id);
+
     const { partner_id: partnerId, tarifa_id: tarifaId } = racun.racunGlava;
-    const [partner, tarifa] = await Promise.all([
+    const [partner, tarifa, artikli] = await Promise.all([
       partnerRepository.get(partnerId),
       tarifaRepository.get(tarifaId),
+      knex.select('id', 'naziv', 'jm').from('artikl').whereIn('id', artiklIds),
     ]);
 
-    const doc = racunReport(firma, racun, partner, tarifa);
+    const doc = racunReport(firma, racun, partner, tarifa, artikli);
     doc.pipe(res);
     doc.end();
     return next();

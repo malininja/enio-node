@@ -19,6 +19,20 @@ app.controller("RacunController", ["$scope", function ($scope) {
     $scope.ukupniIznos = "0,00";
     _me.pdvCollection = [];
 
+    _me.loadArtiklCollection = function () {
+        var artiklCollection = enioNg.api.artikl.getAll();
+
+        if (artiklCollection) {
+            var fn = function () {
+                $scope.artiklCollection = artiklCollection.rows;
+            };
+
+            ninjaSoftware.angularjs.safeApply($scope, fn);
+        } else {
+            alert(enioNg.textResources.dataFetchError);
+        }
+    };
+
     $scope.loadRacun = function (racunGlavaId) {
         var racun = enioNg.api.racun.getById(racunGlavaId);
 
@@ -26,6 +40,10 @@ app.controller("RacunController", ["$scope", function ($scope) {
             var fn = function () {
                 var datum = new Date(racun.racunGlava.datum);
                 racun.racunGlava.datum = ninjaSoftware.date.getDateString(datum);
+                racun.racunStavkaCollection.forEach(stavka => {
+                    stavka.artikl = $scope.artiklCollection.find(a => a.id === stavka.artikl_id);
+                });
+
                 $scope.racunGlava = racun.racunGlava;
                 $scope.racunStavkaCollection = ninjaSoftware.formatNo.toHrNoFormat(racun.racunStavkaCollection, "kolicina");
                 $scope.racunStavkaCollection = ninjaSoftware.formatNo.toHrNoFormat(racun.racunStavkaCollection, "cijena");
@@ -99,20 +117,6 @@ app.controller("RacunController", ["$scope", function ($scope) {
         };
 
         ninjaSoftware.angularjs.safeApply($scope, fn);
-    };
-
-    _me.loadArtiklCollection = function () {
-        var artiklCollection = enioNg.api.artikl.getAll();
-
-        if (artiklCollection) {
-            var fn = function () {
-                $scope.artiklCollection = artiklCollection.rows;
-            };
-
-            ninjaSoftware.angularjs.safeApply($scope, fn);
-        } else {
-            alert(enioNg.textResources.dataFetchError);
-        }
     };
 
     _me.loadPdvCollection = function () {

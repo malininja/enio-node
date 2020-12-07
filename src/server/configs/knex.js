@@ -1,5 +1,5 @@
-const knexConfig = require("../../../knexfile");
-
+/* eslint-disable import/order */
+const knexConfig = require('../../../knexfile');
 const knex = require('knex')(knexConfig);
 
 knex.on('query', (queryData) => {

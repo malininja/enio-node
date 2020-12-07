@@ -17,11 +17,11 @@ function writeRow(doc, fontSize, font, y, tableDefinition, items) {
 
     doc.fontSize(fontSize)
       .font(font)
-      .text(item, x, y);
+      .text(item, x, y, { width: 300 });
   });
 }
 
-function getRacunReport(firma, racun, partner, tarifa) {
+function getRacunReport(firma, racun, partner, tarifa, artikli) {
   const { racunGlava: glava, racunStavkaCollection: stavke } = racun;
 
   const {
@@ -119,13 +119,16 @@ function getRacunReport(firma, racun, partner, tarifa) {
       cijena,
     } = stavka;
 
+    const artikl = artikli.find((a) => a.id === artiklId);
+
     const netto = kolicina * cijena;
     nettoTotal += netto;
 
-    writeRow(doc, 11, font, 330 + i * 15, tableDefinition, [artiklId, 'lol', kolicina, tarifaStopa, netto.toFixed(2)]);
+    const rowItems = [artikl.naziv, artikl.jm, kolicina, tarifaStopa, netto.toFixed(2)];
+    writeRow(doc, 11, font, 330 + i * 30, tableDefinition, rowItems);
   });
 
-  doc.moveTo(50, 330 + stavke.length * 15).lineTo(550, 330 + stavke.length * 15).stroke();
+  doc.moveTo(50, 330 + stavke.length * 30).lineTo(550, 330 + stavke.length * 30).stroke();
 
   const pdvs = stavke.reduce((acc, cur) => {
     const { pdv_posto: pdvPosto, pdv_iznos: pdvIznos } = cur;
@@ -135,7 +138,7 @@ function getRacunReport(firma, racun, partner, tarifa) {
     return acc;
   }, {});
 
-  const footerY = 330 + stavke.length * 15;
+  const footerY = 330 + stavke.length * 30;
   writeRow(doc, 11, font, footerY, tableDefinition, ['', '', '', 'Netto vrijednost:', nettoTotal.toFixed(2)]);
   writeRow(doc, 11, font, footerY + 15, tableDefinition, ['', '', '', `Tarifa ${tarifa.naziv} (${tarifaStopa}%):`, tarifaTotal.toFixed(2)]);
 
@@ -145,13 +148,19 @@ function getRacunReport(firma, racun, partner, tarifa) {
 
   writeRow(doc, 11, fontBold, footerY + 45, tableDefinition, ['', '', '', 'Ukupno za platiti:', ukupno.toFixed(2)]);
 
+  let legalY = footerY + 75;
+  if (stavke.length > 4) {
+    doc.addPage();
+    legalY = pageConfig.margins.top;
+  }
+
   doc.fontSize(11)
     .font(fontBold)
-    .text('OBRAČUN PREMA NAPLAĆENIM NAKNADAMA', 50, footerY + 75);
+    .text('OBRAČUN PREMA NAPLAĆENIM NAKNADAMA', 50, legalY);
 
   doc.fontSize(11)
     .font(font)
-    .text(`Kod plaćanja računa upišite poziv na broj: (99) ${godina}-${brojRacuna}`, 50, footerY + 105)
+    .text(`Kod plaćanja računa upišite poziv na broj: (99) ${godina}-${brojRacuna}`, 50, legalY + 25)
     .text('Način plaćanja: transakcijski račun')
     .text(`Odgovorna osoba za izdavanje računa: ${odgovornaOsoba}`)
     .text(`Datum: ${dateformat(datum, 'dd.mm.yyyy.')}  Vrijeme: ${vrijeme}`)
