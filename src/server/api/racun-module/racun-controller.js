@@ -138,6 +138,7 @@ async function save(req, res, next) {
       const obrisane = dajObrisane(racun.racunStavkaCollection, stavke);
 
       await Promise.all([
+        racunRepository.updateGlava(trx, glava),
         racunRepository.insertStavke(trx, glava.id, nove),
         racunRepository.updateStavke(trx, izmjenjene),
         racunRepository.removeStavke(trx, obrisane),
