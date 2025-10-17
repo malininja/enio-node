@@ -2,7 +2,7 @@ const knex = require("../../configs/knex");
 
 async function get(id) {
   const glava = await knex("racun_glava").where({ id });
-  if (glava?.length === 0) return null;
+  if (glava && glava.length === 0) return null;
   const stavke = await knex("racun_stavka").where({ racun_glava_id: id });
   return { racunGlava: glava[0], racunStavkaCollection: stavke };
 }
