@@ -46,9 +46,13 @@ describe('GET /api/racun/:id', () => {
   });
 
   afterEach(async () => {
-    // Clean up after each test
-    await knex('racun_stavka').where({ id: stavkaId }).del();
-    await knex('racun_glava').where({ id: racunId }).del();
+    // Clean up after each test - only delete test-created records
+    if (stavkaId) {
+      await knex('racun_stavka').where({ id: stavkaId }).del();
+    }
+    if (racunId) {
+      await knex('racun_glava').where({ id: racunId }).del();
+    }
   });
 
   test('should return racun with glava and stavke when valid id provided', async () => {
@@ -129,7 +133,11 @@ describe('GET /api/racun', () => {
   });
 
   afterEach(async () => {
-    await knex('racun_glava').whereIn('id', [racunId1, racunId2]).del();
+    // Clean up test racuni
+    const idsToDelete = [racunId1, racunId2].filter((id) => id);
+    if (idsToDelete.length > 0) {
+      await knex('racun_glava').whereIn('id', idsToDelete).del();
+    }
   });
 
   test('should return list of racuni with pagination', async () => {
@@ -195,9 +203,21 @@ describe('GET /api/racun', () => {
 
 describe('POST /api/racun', () => {
   afterEach(async () => {
-    // Clean up any created racuni
-    await knex('racun_stavka').where({ artikl_id: testData.artiklId }).del();
-    await knex('racun_glava').where({ firma_id: testData.firmaId }).del();
+    // Clean up any racuni created during POST tests
+    // Only delete racuni created in this test suite (with test firma_id and recent timestamp)
+    const recentTimestamp = Date.now() - 60000; // Last minute
+    await knex('racun_stavka')
+      .whereIn('racun_glava_id', function subquery() {
+        this.select('id')
+          .from('racun_glava')
+          .where('firma_id', testData.firmaId)
+          .andWhere('timestamp', '>', recentTimestamp);
+      })
+      .del();
+    await knex('racun_glava')
+      .where({ firma_id: testData.firmaId })
+      .andWhere('timestamp', '>', recentTimestamp)
+      .del();
   });
 
   test('should create new racun with stavke', async () => {

@@ -4,23 +4,71 @@ const knex = require('../../../configs/knex');
  * Helper functions for racun-module integration tests
  */
 
-// Clean up test data
+// Track test data IDs for cleanup
+const testDataIds = {
+  firmaId: null,
+  firmaExistedBefore: false, // Track if firma existed before tests
+  partnerIds: [],
+  tarifaIds: [],
+  pdvIds: [],
+  artiklIds: [],
+  brojacIds: [],
+  racunGlavaIds: [],
+  racunStavkaIds: [],
+};
+
+// Clean up only test data (not entire database!)
 async function cleanupTestData() {
-  await knex('racun_stavka').del();
-  await knex('racun_glava').del();
-  await knex('artikl').del();
-  await knex('pdv').del();
-  await knex('partner').del();
-  await knex('tarifa').del();
-  await knex('brojac').del();
-  await knex('firma').del();
-  // Note: status table is shared, so we don't delete from it
+  // Delete in order respecting foreign key constraints
+  if (testDataIds.racunStavkaIds.length > 0) {
+    await knex('racun_stavka').whereIn('id', testDataIds.racunStavkaIds).del();
+  }
+  if (testDataIds.racunGlavaIds.length > 0) {
+    await knex('racun_glava').whereIn('id', testDataIds.racunGlavaIds).del();
+  }
+  if (testDataIds.artiklIds.length > 0) {
+    await knex('artikl').whereIn('id', testDataIds.artiklIds).del();
+  }
+  if (testDataIds.pdvIds.length > 0) {
+    await knex('pdv').whereIn('id', testDataIds.pdvIds).del();
+  }
+  if (testDataIds.partnerIds.length > 0) {
+    await knex('partner').whereIn('id', testDataIds.partnerIds).del();
+  }
+  if (testDataIds.tarifaIds.length > 0) {
+    await knex('tarifa').whereIn('id', testDataIds.tarifaIds).del();
+  }
+  if (testDataIds.brojacIds.length > 0) {
+    await knex('brojac').whereIn('id', testDataIds.brojacIds).del();
+  }
+  // Only delete firma if we created it (not if it existed before)
+  if (testDataIds.firmaId && !testDataIds.firmaExistedBefore) {
+    await knex('firma').where('id', testDataIds.firmaId).del();
+  }
+
+  // Reset tracking
+  testDataIds.firmaId = null;
+  testDataIds.firmaExistedBefore = false;
+  testDataIds.partnerIds = [];
+  testDataIds.tarifaIds = [];
+  testDataIds.pdvIds = [];
+  testDataIds.artiklIds = [];
+  testDataIds.brojacIds = [];
+  testDataIds.racunGlavaIds = [];
+  testDataIds.racunStavkaIds = [];
 }
 
 // Create test firma
 async function createTestFirma() {
-  // Always create with ID 1 since bl.getFirmaId() returns 1
-  await knex.raw('DELETE FROM firma WHERE id = 1');
+  // Always use ID 1 since bl.getFirmaId() returns 1
+  // Check if firma with id=1 already exists
+  const existing = await knex('firma').where({ id: 1 }).first();
+  if (existing) {
+    testDataIds.firmaId = 1;
+    testDataIds.firmaExistedBefore = true;
+    return 1;
+  }
+
   const [id] = await knex('firma').insert({
     id: 1,
     aktivna_godina: 2025,
@@ -30,6 +78,8 @@ async function createTestFirma() {
     mjesto: 'Zagreb',
     timestamp: Date.now().toString(),
   }).returning('id');
+  testDataIds.firmaId = id;
+  testDataIds.firmaExistedBefore = false;
   return id;
 }
 
@@ -46,6 +96,7 @@ async function createTestPartner(firmaId) {
     firma_id: firmaId,
     timestamp: Date.now().toString(),
   }).returning('id');
+  testDataIds.partnerIds.push(id);
   return id;
 }
 
@@ -58,6 +109,7 @@ async function createTestTarifa(firmaId) {
     firma_id: firmaId,
     timestamp: Date.now().toString(),
   }).returning('id');
+  testDataIds.tarifaIds.push(id);
   return id;
 }
 
@@ -69,6 +121,7 @@ async function createTestPdv(firmaId) {
     firma_id: firmaId,
     timestamp: Date.now().toString(),
   }).returning('id');
+  testDataIds.pdvIds.push(id);
   return id;
 }
 
@@ -83,6 +136,7 @@ async function createTestArtikl(firmaId, pdvId) {
     firma_id: firmaId,
     timestamp: Date.now().toString(),
   }).returning('id');
+  testDataIds.artiklIds.push(id);
   return id;
 }
 
@@ -95,6 +149,7 @@ async function createTestBrojac(firmaId) {
     firma_id: firmaId,
     timestamp: Date.now().toString(),
   }).returning('id');
+  testDataIds.brojacIds.push(id);
   return id;
 }
 
@@ -129,6 +184,7 @@ async function createTestRacunGlava(firmaId, partnerId, tarifaId, statusId) {
     firma_id: firmaId,
     timestamp: Date.now().toString(),
   }).returning('id');
+  testDataIds.racunGlavaIds.push(id);
   return id;
 }
 
@@ -150,12 +206,13 @@ async function createTestRacunStavka(racunGlavaId, artiklId) {
     pozicija: 1,
     timestamp: Date.now().toString(),
   }).returning('id');
+  testDataIds.racunStavkaIds.push(id);
   return id;
 }
 
 // Setup full test data (firma, partner, tarifa, artikl, status)
 async function setupTestData() {
-  await cleanupTestData();
+  // Don't cleanup at start - only clean up what we created
 
   const firmaId = await createTestFirma();
   const partnerId = await createTestPartner(firmaId);

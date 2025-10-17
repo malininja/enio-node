@@ -66,6 +66,7 @@ Each feature module MUST follow this structure:
 ### 3.1 ESLint Configuration
 - **Base**: Airbnb style guide
 - **Scope**: Only `./src/api` directory is linted (see `package.json` lint script)
+- **Environments**: `node`, `es6`, `jest` (recognizes Jest globals)
 - **Custom Rules**:
   - `no-param-reassign`: OFF (allow parameter reassignment)
   - `no-mixed-operators`: OFF
@@ -246,6 +247,7 @@ async function handler(req, res, next) {
 - **Framework**: Jest 26.x
 - **HTTP Testing**: Supertest 6.x
 - **Test Environment**: Node.js
+- **ESLint**: Configured to recognize Jest globals (`describe`, `test`, `expect`, etc.)
 - **Run Tests**: `yarn test` or `npm test`
 - **Watch Mode**: `yarn test:watch`
 - **Coverage**: `yarn test:coverage`
@@ -348,17 +350,28 @@ test('should return paginated list', async () => {
 - Create `test-helpers.js` in `__tests__/` folder
 - Export reusable functions for setup/teardown
 - Include functions to create test data
+- **Track created IDs** for selective cleanup
 
 ```javascript
 // test-helpers.js
 const knex = require('../../../configs/knex');
 
+// Track test data for cleanup
+const testDataIds = {
+  recordIds: [],
+};
+
 async function cleanupTestData() {
-  await knex('table').del();
+  // Only delete tracked test data, not entire table
+  if (testDataIds.recordIds.length > 0) {
+    await knex('table').whereIn('id', testDataIds.recordIds).del();
+  }
+  testDataIds.recordIds = [];
 }
 
 async function createTestRecord(data) {
   const [id] = await knex('table').insert(data).returning('id');
+  testDataIds.recordIds.push(id); // Track for cleanup
   return id;
 }
 
@@ -381,8 +394,10 @@ module.exports = {
 - Tests use the database configured in `knexfile.js`
 - Set `NODE_ENV=test` when running tests
 - Connection pool configured with `min: 0, max: 7` for better cleanup
-- Recommend using a separate test database
-- Clean up test data after tests to avoid pollution
+- **Tests only delete data they create** - existing data is preserved
+- Test helpers track all created IDs for selective cleanup
+- Recommend using a separate test database for complete isolation
+- Safe to run tests against development database
 
 #### 10.6.3 Jest Configuration
 - Tests use `--forceExit` flag to prevent hanging on open handles

@@ -13,10 +13,17 @@ npm install
 ```
 
 ### 2. Configure Test Database
-The tests use the database configured in `knexfile.js`. It's recommended to use a separate test database:
+The tests use the database configured in `knexfile.js`.
+
+**IMPORTANT**: Tests now **only delete data they create**, not the entire database. This means:
+- ✅ Existing data is preserved
+- ✅ Tests can run against development database safely
+- ✅ Test data is properly isolated and cleaned up
+
+However, it's still recommended to use a separate test database for complete isolation:
 
 ```javascript
-// knexfile.js - consider adding test configuration
+// knexfile.js - optional test configuration
 module.exports = {
   client: 'pg',
   connection: process.env.NODE_ENV === 'test' 
@@ -118,7 +125,11 @@ afterAll(async () => {
 ```
 
 ### 3. Clean Up After Tests
-Always clean up data created during tests to avoid polluting the database.
+The test framework automatically tracks and cleans up only the data it creates:
+- Test helpers track all created IDs (partners, artikls, racuni, etc.)
+- Cleanup only deletes records created during tests
+- Existing data in the database is preserved
+- If firma ID=1 existed before tests, it won't be deleted
 
 ## Troubleshooting
 
