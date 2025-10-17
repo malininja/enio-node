@@ -242,12 +242,250 @@ async function handler(req, res, next) {
 
 ## 10. Testing
 
-### 10.1 Test Location
-- Place tests in `__tests__/` folder within module
-- Name test files: `[module-name].test.js`
+### 10.1 Testing Framework
+- **Framework**: Jest 26.x
+- **HTTP Testing**: Supertest 6.x
+- **Test Environment**: Node.js
+- **Run Tests**: `yarn test` or `npm test`
+- **Watch Mode**: `yarn test:watch`
+- **Coverage**: `yarn test:coverage`
 
-### 10.2 Test Patterns
-- (To be defined as testing framework is implemented)
+### 10.2 Test Location and Naming
+- Place tests in `__tests__/` folder within each module
+- Name test files: `[module-name]-integration.test.js` or `[feature].test.js`
+- Helper files: `test-helpers.js` for shared test utilities
+
+### 10.3 Test Structure
+```javascript
+const request = require('supertest');
+const express = require('express');
+const bodyParser = require('body-parser');
+const moduleRouter = require('../index');
+const knex = require('../../../configs/knex');
+
+// Create test app
+const app = express();
+app.use(bodyParser.json());
+app.use('/api/module', moduleRouter);
+
+// Setup/teardown
+beforeAll(async () => {
+  // Setup test data
+});
+
+afterAll(async () => {
+  // Cleanup and close connections
+  await knex.destroy();
+});
+
+describe('Feature/Endpoint', () => {
+  test('should do something', async () => {
+    const response = await request(app)
+      .get('/api/module')
+      .expect(200);
+    
+    expect(response.body).toBeDefined();
+  });
+});
+```
+
+### 10.4 Integration Test Patterns
+
+#### 10.4.1 Testing GET Endpoints
+```javascript
+test('should return resource when valid id provided', async () => {
+  const response = await request(app)
+    .get(`/api/module/${testId}`)
+    .expect(200);
+
+  expect(response.body).toHaveProperty('id');
+  expect(response.body.id).toBe(testId);
+});
+
+test('should return 404 when resource does not exist', async () => {
+  await request(app)
+    .get('/api/module/999999')
+    .expect(404);
+});
+```
+
+#### 10.4.2 Testing POST Endpoints
+```javascript
+test('should create new resource', async () => {
+  const newData = { naziv: 'Test', active: true };
+  
+  const response = await request(app)
+    .post('/api/module')
+    .send(newData)
+    .expect(200);
+
+  expect(response.body).toBeDefined();
+  
+  // Verify in database
+  const created = await knex('table').where({ id: response.body }).first();
+  expect(created.naziv).toBe('Test');
+});
+```
+
+#### 10.4.3 Testing List Endpoints with Pagination
+```javascript
+test('should return paginated list', async () => {
+  const response = await request(app)
+    .get('/api/module')
+    .query({ page: 1, rows: 10 })
+    .expect(200);
+
+  expect(response.body).toHaveProperty('rows');
+  expect(response.body).toHaveProperty('total');
+  expect(response.body).toHaveProperty('records');
+  expect(response.body.rows).toBeInstanceOf(Array);
+});
+```
+
+### 10.5 Test Helpers
+
+#### 10.5.1 Creating Test Helpers
+- Create `test-helpers.js` in `__tests__/` folder
+- Export reusable functions for setup/teardown
+- Include functions to create test data
+
+```javascript
+// test-helpers.js
+const knex = require('../../../configs/knex');
+
+async function cleanupTestData() {
+  await knex('table').del();
+}
+
+async function createTestRecord(data) {
+  const [id] = await knex('table').insert(data).returning('id');
+  return id;
+}
+
+module.exports = {
+  cleanupTestData,
+  createTestRecord,
+};
+```
+
+### 10.6 Test Data Management
+
+#### 10.6.1 Setup and Teardown
+- Use `beforeAll()` for one-time setup (creating test firma, partner, etc.)
+- Use `beforeEach()` for per-test setup
+- Use `afterEach()` for per-test cleanup
+- Use `afterAll()` for final cleanup and closing database connections
+- **ALWAYS** call `await knex.destroy()` in `afterAll()` to close connections
+
+#### 10.6.2 Test Database
+- Tests use the database configured in `knexfile.js`
+- Set `NODE_ENV=test` when running tests
+- Connection pool configured with `min: 0, max: 7` for better cleanup
+- Recommend using a separate test database
+- Clean up test data after tests to avoid pollution
+
+#### 10.6.3 Jest Configuration
+- Tests use `--forceExit` flag to prevent hanging on open handles
+- This is normal for database integration tests due to connection pooling
+- Test timeout set to 30 seconds to accommodate database operations
+- The "Force exiting Jest" message is expected and not an error
+
+### 10.7 Test Coverage Requirements
+
+Tests should cover:
+- ✅ Happy path scenarios (valid inputs, successful operations)
+- ✅ Error cases (invalid inputs, non-existent resources, 404s)
+- ✅ Edge cases (empty lists, boundary values)
+- ✅ Business logic (calculations, validations, constraints)
+- ✅ CRUD operations (Create, Read, Update, Delete)
+- ✅ Transaction handling (for multi-step operations)
+- ✅ Filtering and pagination
+- ✅ Required field validation
+
+### 10.8 Test Best Practices
+
+#### 10.8.1 Test Independence
+- Each test should be independent and not rely on others
+- Clean up data created during tests
+- Use `beforeEach`/`afterEach` for isolation
+
+#### 10.8.2 Assertions
+- Use descriptive test names that explain what is being tested
+- Use specific assertions: `toHaveProperty()`, `toBeInstanceOf()`, `toBe()`, `toEqual()`
+- Test both successful responses and error responses
+- Verify data in database after mutations
+
+#### 10.8.3 Async/Await
+- All test functions should be `async` when making database or HTTP calls
+- Always `await` promises
+- Handle errors appropriately
+
+#### 10.8.4 Test Organization
+- Group related tests using `describe()` blocks
+- One describe block per endpoint or feature
+- Clear test names: `should [expected behavior] when [condition]`
+
+### 10.9 Example Test File Structure
+
+```javascript
+const request = require('supertest');
+// ... imports
+
+// Test app setup
+const app = express();
+// ... middleware
+
+// Test data variables
+let testData;
+
+beforeAll(async () => {
+  testData = await setupTestData();
+});
+
+afterAll(async () => {
+  await cleanupTestData();
+  await knex.destroy();
+});
+
+describe('GET /api/module/:id', () => {
+  // Tests for getting single resource
+});
+
+describe('GET /api/module', () => {
+  // Tests for listing resources
+});
+
+describe('POST /api/module', () => {
+  // Tests for creating/updating resources
+});
+
+describe('DELETE /api/module/:id', () => {
+  // Tests for deleting resources
+});
+```
+
+### 10.10 Running Tests
+
+```bash
+# Run all tests
+yarn test
+
+# Run tests in watch mode
+yarn test:watch
+
+# Run tests with coverage
+yarn test:coverage
+
+# Run specific test file
+yarn test racun-integration.test.js
+```
+
+### 10.11 Continuous Integration
+
+- Tests should pass before committing code
+- Consider adding `precommit` hook to run tests
+- All new features should include tests
+- Bug fixes should include regression tests
 
 ---
 
@@ -306,6 +544,7 @@ data.timestamp = (new Date()).getTime();
 
 Before committing code, ensure:
 - [ ] ESLint passes without errors (`yarn lint`)
+- [ ] **Tests pass** (`yarn test`)
 - [ ] Code follows existing patterns
 - [ ] Transactions are properly handled (commit/rollback)
 - [ ] Error handling is implemented
@@ -315,6 +554,7 @@ Before committing code, ensure:
 - [ ] CommonJS modules (require/module.exports)
 - [ ] Repository pattern followed
 - [ ] Controllers call `return next()` after responses
+- [ ] **New features include integration tests**
 
 ---
 
@@ -348,8 +588,11 @@ Before committing code, ensure:
 3. **Use single quotes** (code in `src/api/` is linted)
 4. Follow existing patterns from similar modules
 5. Register router in `src/api/index.js`
-6. Add necessary views in `src/views/`
-7. Add frontend controller in `src/static/scripts/Home/` if needed
+6. **Create `__tests__/` folder with integration tests**
+7. Create `test-helpers.js` for test utilities
+8. Add necessary views in `src/views/`
+9. Add frontend controller in `src/static/scripts/Home/` if needed
+10. **Run tests to verify functionality** (`yarn test`)
 
 ### 16.2 When Modifying Existing Code
 1. Read existing code in the module first
