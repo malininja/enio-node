@@ -28,7 +28,7 @@ body {
 /* Enhanced body content with better spacing */
 .body-content {
     padding: 30px 15px;
-    min-height: calc(100vh - 150px);
+    min-height: auto;
 }
 
 /* Modern Card Design */
@@ -213,6 +213,8 @@ table td:first-child {
     box-shadow: var(--shadow-md);
     border: 1px solid var(--border-color) !important;
     margin-bottom: 0 !important;
+    height: auto !important;
+    max-height: fit-content !important;
 }
 
 .ui-jqgrid .ui-jqgrid-view {
@@ -223,6 +225,20 @@ table td:first-child {
     border: none !important;
     overflow-x: auto !important;
     overflow-y: auto !important;
+    height: fit-content !important;
+    max-height: none !important;
+}
+
+/* Target the inner positioning div that causes space */
+.ui-jqgrid .ui-jqgrid-bdiv > div[style*="position:relative"] {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+}
+
+.ui-jqgrid .ui-jqgrid-bdiv > div > div:empty {
+    display: none !important;
+    height: 0 !important;
 }
 
 .ui-jqgrid-pager {
@@ -286,6 +302,16 @@ table td:first-child {
     border: none !important;
     border-top: 2px solid var(--border-color) !important;
     padding: 10px !important;
+    height: auto !important;
+    min-height: 40px !important;
+    max-height: 50px !important;
+}
+
+.ui-jqgrid-pager .ui-pg-table {
+    height: auto !important;
+}
+
+.ui-jqgrid-pager table[style*="height:100%"] {
     height: auto !important;
 }
 
@@ -379,10 +405,98 @@ table td:first-child {
 .card .ui-jqgrid {
     display: block;
     line-height: 0;
+    vertical-align: top;
 }
 
 .card .ui-jqgrid * {
     line-height: normal;
+}
+
+/* Fix height issues */
+.ui-jqgrid .ui-jqgrid-bdiv {
+    min-height: 0 !important;
+    max-height: none !important;
+    height: auto !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* Prevent excessive height on auto-height grids */
+.ui-jqgrid .ui-jqgrid-bdiv > div {
+    height: auto !important;
+    min-height: 0 !important;
+}
+
+.ui-jqgrid-btable {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Remove extra space from grid view */
+.ui-jqgrid-view {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block;
+}
+
+/* Ensure pager has no extra height */
+.ui-jqgrid-pager {
+    margin: 0 !important;
+    padding: 10px !important;
+    min-height: 0 !important;
+}
+
+/* Remove gap between grid sections */
+.ui-jqgrid-hdiv,
+.ui-jqgrid-bdiv,
+.ui-jqgrid-sdiv,
+.ui-jqgrid-pager {
+    display: block !important;
+    float: none !important;
+    clear: both !important;
+}
+
+/* Grid box should fit content exactly */
+.ui-jqgrid {
+    overflow: visible !important;
+}
+
+/* Remove any extra space from the grid wrapper divs */
+div[id^="gview_"] {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+}
+
+div[id^="gbox_"] {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    height: auto !important;
+}
+
+/* Collapse empty space in grid container */
+.ui-jqgrid-bdiv > div:first-child {
+    position: relative !important;
+    height: auto !important;
+    min-height: 0 !important;
+}
+
+/* Ensure table fits content without extra space */
+.ui-jqgrid-btable tbody {
+    display: table-row-group;
+}
+
+/* Remove any spacer rows or empty elements */
+tr.jqgfirstrow {
+    height: 0 !important;
+    line-height: 0 !important;
+}
+
+tr.jqgfirstrow td {
+    height: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
 }
 
 /* Validation Messages */

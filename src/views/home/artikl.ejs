@@ -132,10 +132,19 @@
                 scope.loadArtikl(rowData["id"]);
                 openArtiklDialog();
             },
-            height: 'auto'
+            height: 350,
+            rowNum: 20
         }).filterToolbar({ groupOp : 'AND', stringResult: true, searchOnEnter: false });
         
-        $("#ArtiklTable").jqGrid("navGrid", "#ArtiklTablePager");
-    </script>
+    $("#ArtiklTable").jqGrid("navGrid", "#ArtiklTablePager");
+    
+    // Fix height issues after grid loads
+    $("#ArtiklTable").bind("jqGridAfterLoadComplete", function() {
+        var bdiv = $(this).closest('.ui-jqgrid-bdiv');
+        var innerDiv = bdiv.find('> div[style*="position"]');
+        innerDiv.css({'height': 'auto', 'min-height': '0'});
+        bdiv.css({'height': 'auto !important', 'max-height': 'none'});
+    });
+</script>
 
 <%- include("footer") -%>

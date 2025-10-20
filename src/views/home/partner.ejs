@@ -147,10 +147,19 @@
                 scope.loadPartner(rowData["id"]);
                 openPartnerDialog();
             },
-            height: 'auto'
+            height: 350,
+            rowNum: 20
         }).filterToolbar({ groupOp : 'AND', stringResult: true, searchOnEnter: false });
         
-        $("#PartnerTable").jqGrid("navGrid", "#PartnerTablePager");
-    </script>
+    $("#PartnerTable").jqGrid("navGrid", "#PartnerTablePager");
+    
+    // Fix height issues after grid loads
+    $("#PartnerTable").bind("jqGridAfterLoadComplete", function() {
+        var bdiv = $(this).closest('.ui-jqgrid-bdiv');
+        var innerDiv = bdiv.find('> div[style*="position"]');
+        innerDiv.css({'height': 'auto', 'min-height': '0'});
+        bdiv.css({'height': 'auto', 'max-height': 'none'});
+    });
+</script>
 
 <%- include("footer") -%>

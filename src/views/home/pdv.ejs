@@ -99,10 +99,19 @@
             scope.loadPdv(rowData["id"]);
             openPdvDialog();
         },
-        height: 'auto'
+            height: 350,
+            rowNum: 20
     }).filterToolbar({ groupOp: "AND", stringResult: true, searchOnEnter: false });
 
     $("#PdvTable").jqGrid("navGrid", "#PdvTablePager");
+    
+    // Fix height issues after grid loads
+    $("#PdvTable").bind("jqGridAfterLoadComplete", function() {
+        var bdiv = $(this).closest('.ui-jqgrid-bdiv');
+        var innerDiv = bdiv.find('> div[style*="position"]');
+        innerDiv.css({'height': 'auto', 'min-height': '0'});
+        bdiv.css({'height': 'auto', 'max-height': 'none'});
+    });
 </script>
 
   <%- include("footer") -%>
