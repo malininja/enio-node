@@ -1,5 +1,59 @@
   <%- include("header") -%>
 
-<h1>bla bla bla</h1>
+<div style="text-align: center; padding: 60px 20px;">
+    <div style="max-width: 900px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); border-radius: 15px; padding: 50px 30px; margin-bottom: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+            <div style="width: 80px; height: 80px; background: white; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 40px; font-weight: bold; color: #3498db;">E</div>
+            <h1 style="color: white; font-size: 3rem; margin-bottom: 15px;">Dobrodošli u ENIO</h1>
+            <p style="color: rgba(255,255,255,0.9); font-size: 1.3rem; margin: 0;">Enterprise Accounting & Invoicing System</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-bottom: 40px;">
+            <div class="card" style="text-align: center; cursor: pointer; transition: transform 0.3s ease;" onclick="window.location.href='/Home/racun-list'" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="font-size: 3rem; margin-bottom: 15px;">📄</div>
+                <h3 style="color: #2c3e50; margin-bottom: 10px;">Računi</h3>
+                <p style="color: #7f8c8d; margin: 0;">Upravljanje računima i fakturiranje</p>
+            </div>
+
+            <div class="card" style="text-align: center; cursor: pointer; transition: transform 0.3s ease;" onclick="window.location.href='/Home/artikl'" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="font-size: 3rem; margin-bottom: 15px;">📦</div>
+                <h3 style="color: #2c3e50; margin-bottom: 10px;">Artikli</h3>
+                <p style="color: #7f8c8d; margin: 0;">Upravljanje proizvodima i uslugama</p>
+            </div>
+
+            <div class="card" style="text-align: center; cursor: pointer; transition: transform 0.3s ease;" onclick="window.location.href='/Home/partner'" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="font-size: 3rem; margin-bottom: 15px;">🤝</div>
+                <h3 style="color: #2c3e50; margin-bottom: 10px;">Partneri</h3>
+                <p style="color: #7f8c8d; margin: 0;">Baza kupaca i dobavljača</p>
+            </div>
+
+            <div class="card" style="text-align: center; cursor: pointer; transition: transform 0.3s ease;" onclick="window.location.href='/Home/tarifa'" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="font-size: 3rem; margin-bottom: 15px;">💰</div>
+                <h3 style="color: #2c3e50; margin-bottom: 10px;">Tarife</h3>
+                <p style="color: #7f8c8d; margin: 0;">Upravljanje tarifama</p>
+            </div>
+
+            <div class="card" style="text-align: center; cursor: pointer; transition: transform 0.3s ease;" onclick="window.location.href='/Home/pdv'" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="font-size: 3rem; margin-bottom: 15px;">📊</div>
+                <h3 style="color: #2c3e50; margin-bottom: 10px;">PDV</h3>
+                <p style="color: #7f8c8d; margin: 0;">Postavljanje stopa PDV-a</p>
+            </div>
+
+            <div class="card" style="text-align: center; cursor: pointer; transition: transform 0.3s ease;" onclick="window.location.href='/Home/firma'" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="font-size: 3rem; margin-bottom: 15px;">⚙️</div>
+                <h3 style="color: #2c3e50; margin-bottom: 10px;">Postavke</h3>
+                <p style="color: #7f8c8d; margin: 0;">Konfiguracija sustava</p>
+            </div>
+        </div>
+
+        <div class="card" style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(26, 188, 156, 0.1) 100%); border: 2px solid #3498db;">
+            <h3 style="color: #2c3e50; margin-bottom: 15px;">📈 Brz pristup</h3>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <input type="button" value="➕ Novi račun" onclick="window.location.href='/home/racun-edit'" class="btn-success" />
+                <input type="button" value="📋 Pregled računa" onclick="window.location.href='/Home/racun-list'" class="btn-primary" />
+            </div>
+        </div>
+    </div>
+</div>
 
   <%- include("footer") -%>

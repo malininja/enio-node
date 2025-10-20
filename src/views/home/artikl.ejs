@@ -2,14 +2,16 @@
 
 <div>
 
-        <h2>Lista artikala</h2>
+        <h2 style="margin-bottom: 25px; color: #2c3e50;">📦 Lista artikala</h2>
     
-        <input style="font-size: 130%;" type="button" value="Dodaj novi artikl" onclick="openNewArtiklDialog();" />
-        <br /><br />
+        <div class="action-buttons">
+            <input type="button" value="➕ Dodaj novi artikl" onclick="openNewArtiklDialog();" class="btn-success" />
+        </div>
     
-        <table id="ArtiklTable"></table>
-        <div id="ArtiklTablePager"></div>	
-        <br /><br />
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <table id="ArtiklTable"></table>
+            <div id="ArtiklTablePager"></div>
+        </div>
         
         <div id="ArtiklInput" ng-app="enioApp">
         <div id="divNgController" ng-controller="ArtiklController">

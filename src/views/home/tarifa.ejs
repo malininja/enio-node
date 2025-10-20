@@ -1,14 +1,16 @@
 <%- include("header") -%>
 
 <div>
-    <h2>Lista tarifa</h2>
+    <h2 style="margin-bottom: 25px; color: #2c3e50;">💰 Lista tarifa</h2>
 
-    <input style="font-size: 130%;" type="button" value="Dodaj novu tarifu" onclick="openNewTarifaDialog();" />
-    <br /><br />
+    <div class="action-buttons">
+        <input type="button" value="➕ Dodaj novu tarifu" onclick="openNewTarifaDialog();" class="btn-success" />
+    </div>
 
-    <table id="TarifaTable"></table>
-    <div id="TarifaTablePager"></div>
-    <br /><br />
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <table id="TarifaTable"></table>
+        <div id="TarifaTablePager"></div>
+    </div>
 
     <div id="TarifaInput" ng-app="enioApp">
         <div id="divNgController" ng-controller="TarifaController">

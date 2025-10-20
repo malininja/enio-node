@@ -2,22 +2,27 @@
 
 <div ng-app="enioApp">
     <div id="divNgController" ng-controller="FirmaController">
-        <h2>Lista računa za {{ firma.aktivna_godina }}. godinu</h2>
+        <h2 style="margin-bottom: 25px; color: #2c3e50;">📄 Lista računa za {{ firma.aktivna_godina }}. godinu</h2>
     </div>
 </div>
 
-<input style="font-size: 130%;" type="button" value="Unos novog računa" onclick="window.location.href='/home/racun-edit'" />
-<input style="font-size: 130%;" type="button" value="Ispis računa" onclick="ispisRacuna();" />
-<input style="font-size: 130%;" type="button" value="Ispis liste računa" onclick="ispisListeRacuna();" />
+<div class="action-buttons">
+    <input type="button" value="➕ Unos novog računa" onclick="window.location.href='/home/racun-edit'" class="btn-success" />
+    <input type="button" value="🖨️ Ispis računa" onclick="ispisRacuna();" class="btn-primary" />
+    <input type="button" value="📋 Ispis liste računa" onclick="ispisListeRacuna();" class="btn-primary" />
+</div>
 
-<br /><br />
-<span>Datum od:</span>
-<input id="datum-od" type="text" />
-<span>Datum do:</span>
-<input id="datum-do" type="text" />
+<div class="filter-section">
+    <span>📅 Datum od:</span>
+    <input id="datum-od" type="text" placeholder="Odaberite datum" />
+    <span>📅 Datum do:</span>
+    <input id="datum-do" type="text" placeholder="Odaberite datum" />
+</div>
 
-<table id="RacunTable"></table>
-<div id="RacunTablePager"></div>
+<div class="card" style="padding: 0; overflow: hidden;">
+    <table id="RacunTable"></table>
+    <div id="RacunTablePager"></div>
+</div>
 
 <script type="text/javascript">
     Globalize.culture("hr");

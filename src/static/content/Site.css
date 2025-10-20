@@ -1,28 +1,446 @@
-﻿body {
-    padding-top: 50px;
+/* Modern Enterprise Theme - Color Palette */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --accent-color: #1abc9c;
+    --success-color: #27ae60;
+    --warning-color: #f39c12;
+    --danger-color: #e74c3c;
+    --light-bg: #ecf0f1;
+    --card-bg: #ffffff;
+    --text-dark: #2c3e50;
+    --text-muted: #7f8c8d;
+    --border-color: #dfe6e9;
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+}
+
+body {
+    padding-top: 70px;
     padding-bottom: 20px;
+    background-color: var(--light-bg);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text-dark);
+    line-height: 1.6;
 }
 
-/* Set padding to keep content from hitting the edges */
+/* Enhanced body content with better spacing */
 .body-content {
-    padding-left: 15px;
-    padding-right: 15px;
+    padding: 30px 15px;
+    min-height: calc(100vh - 150px);
 }
 
-/* Override the default bootstrap behavior where horizontal description lists 
-   will truncate terms that are too long to fit in the left column 
-*/
-.dl-horizontal dt {
-    white-space: normal;
+/* Modern Card Design */
+.card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    padding: 25px;
+    margin-bottom: 25px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
 }
 
-/* Set width on the form input elements since they're 100% wide by default */
+/* Card containing grids should have no padding */
+.card:has(table[id$="Table"]) {
+    padding: 0;
+    overflow: hidden;
+}
+
+.card table[id$="Table"],
+.card div[id$="TablePager"] {
+    margin: 0 !important;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    padding: 15px 25px;
+    margin: -25px -25px 20px -25px;
+    border-radius: 8px 8px 0 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* Modern Typography */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.75rem; }
+
+/* Enhanced Form Styling */
 input,
 select,
 textarea {
-    max-width: 280px;
+    max-width: 400px;
+    padding: 10px 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background-color: white;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--secondary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 input.number {
     text-align: right;
 }
+
+/* Modern Button Styling */
+input[type="button"],
+button {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-color) 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+input[type="button"]:hover,
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    opacity: 0.9;
+}
+
+input[type="button"]:active,
+button:active {
+    transform: translateY(0);
+}
+
+/* Button Variations */
+.btn-primary {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, #2980b9 100%);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success-color) 0%, #229954 100%);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, var(--warning-color) 0%, #e67e22 100%);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--danger-color) 0%, #c0392b 100%);
+}
+
+/* Modern Table Styling */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+table td,
+table th {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+table tr:last-child td {
+    border-bottom: none;
+}
+
+table td:first-child {
+    font-weight: 600;
+    color: var(--text-dark);
+    width: 200px;
+}
+
+/* Action Buttons Container */
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Date Filter Section */
+.filter-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-section span {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+/* Grid Enhancements */
+.ui-jqgrid {
+    border-radius: 8px !important;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color) !important;
+    margin-bottom: 0 !important;
+}
+
+.ui-jqgrid .ui-jqgrid-view {
+    border-radius: 8px;
+}
+
+.ui-jqgrid .ui-jqgrid-bdiv {
+    border: none !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+}
+
+.ui-jqgrid-pager {
+    height: auto !important;
+    min-height: 35px !important;
+}
+
+.ui-jqgrid .ui-jqgrid-titlebar {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+    color: white !important;
+    padding: 15px !important;
+    font-weight: 600;
+    border: none !important;
+    border-radius: 8px 8px 0 0;
+}
+
+.ui-jqgrid .ui-jqgrid-title {
+    color: white !important;
+    font-size: 16px;
+}
+
+.ui-jqgrid .ui-jqgrid-hdiv {
+    background-color: #f8f9fa !important;
+    border: none !important;
+}
+
+.ui-jqgrid .ui-jqgrid-htable thead th {
+    background: linear-gradient(to bottom, #ffffff 0%, #f5f7fa 100%) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-dark) !important;
+    font-weight: 600;
+    padding: 12px 8px !important;
+    font-size: 13px;
+}
+
+.ui-jqgrid .ui-jqgrid-htable thead th div {
+    height: auto !important;
+}
+
+.ui-jqgrid tr.ui-row-ltr:hover {
+    background-color: #e3f2fd !important;
+    cursor: pointer;
+}
+
+.ui-jqgrid tr.jqgrow td {
+    padding: 10px 8px !important;
+    border-color: #e9ecef !important;
+}
+
+.ui-jqgrid .ui-jqgrid-btable {
+    border: none !important;
+}
+
+.ui-jqgrid .ui-jqgrid-bdiv {
+    border: none !important;
+}
+
+/* Pager Styling */
+.ui-jqgrid .ui-jqgrid-pager {
+    background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%) !important;
+    border: none !important;
+    border-top: 2px solid var(--border-color) !important;
+    padding: 10px !important;
+    height: auto !important;
+}
+
+.ui-jqgrid .ui-pg-table {
+    background: transparent !important;
+}
+
+.ui-jqgrid .ui-pg-button {
+    border-radius: 4px !important;
+    margin: 0 2px !important;
+    transition: all 0.2s ease !important;
+}
+
+.ui-jqgrid .ui-pg-button:hover {
+    background-color: var(--secondary-color) !important;
+    color: white !important;
+}
+
+/* Search toolbar styling */
+.ui-jqgrid tr.ui-search-toolbar th {
+    background-color: #f8f9fa !important;
+    border-color: var(--border-color) !important;
+    padding: 8px 4px !important;
+}
+
+.ui-jqgrid tr.ui-search-toolbar input,
+.ui-jqgrid tr.ui-search-toolbar select {
+    border: 1px solid var(--border-color) !important;
+    border-radius: 4px !important;
+    padding: 6px 8px !important;
+    font-size: 13px;
+}
+
+.ui-jqgrid tr.ui-search-toolbar input:focus,
+.ui-jqgrid tr.ui-search-toolbar select:focus {
+    border-color: var(--secondary-color) !important;
+    outline: none;
+}
+
+/* Selected row styling */
+.ui-jqgrid tr.ui-state-highlight td {
+    background-color: #bbdefb !important;
+    border-color: #90caf9 !important;
+}
+
+/* Remove extra space from grid wrappers */
+.ui-jqgrid-bdiv,
+.ui-jqgrid-hdiv,
+.ui-jqgrid-sdiv {
+    margin: 0 !important;
+}
+
+.ui-jqgrid .ui-jqgrid-bdiv table {
+    margin-bottom: 0 !important;
+}
+
+/* Ensure no extra height on grid wrapper */
+#gbox_ArtiklTable,
+#gbox_PartnerTable,
+#gbox_TarifaTable,
+#gbox_PdvTable,
+#gbox_RacunTable {
+    margin: 0 !important;
+    display: block;
+    width: 100% !important;
+}
+
+/* Make jqGrid responsive and full-width */
+.ui-jqgrid {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.ui-jqgrid-view {
+    width: 100% !important;
+}
+
+.ui-jqgrid-hdiv,
+.ui-jqgrid-bdiv,
+.ui-jqgrid-pager {
+    width: 100% !important;
+}
+
+.ui-jqgrid-htable,
+.ui-jqgrid-btable {
+    width: 100% !important;
+    max-width: 100%;
+}
+
+/* Prevent extra space below grid */
+.card .ui-jqgrid {
+    display: block;
+    line-height: 0;
+}
+
+.card .ui-jqgrid * {
+    line-height: normal;
+}
+
+/* Validation Messages */
+.validation {
+    color: var(--danger-color);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 10px;
+    background-color: rgba(231, 76, 60, 0.1);
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* Override bootstrap behavior */
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .body-content {
+        padding: 15px 10px;
+    }
+    
+    .card {
+        padding: 15px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    input[type="button"],
+    button {
+        width: 100%;
+        margin-right: 0;
+    }
+}
+
+/* Loading Indicator */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(52, 152, 219, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--secondary-color);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Utility Classes */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.mt-10 { margin-top: 10px; }
+.mt-20 { margin-top: 20px; }
+.mb-10 { margin-bottom: 10px; }
+.mb-20 { margin-bottom: 20px; }

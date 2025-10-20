@@ -2,58 +2,66 @@
 
   <div ng-app="enioApp">
         <div ng-controller="FirmaController">
-            <h3>Podaci o poduzeću</h3>
-            <table>
-                <tr>
-                    <td>Naziv</td>
-                    <td>
-                        <input ng-model="firma.naziv" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>Adresa</td>
-                    <td>
-                        <input ng-model="firma.adresa" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>Mjesto</td>
-                    <td>
-                        <input ng-model="firma.mjesto" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>OIB</td>
-                    <td>
-                        <input ng-model="firma.oib" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>Žiro račun</td>
-                    <td>
-                        <input ng-model="firma.zr" />
-                    </td>
-                </tr>
-            </table>
+            <h2 style="margin-bottom: 30px; color: #2c3e50;">⚙️ Postavke</h2>
             
-            <h3>Programski parametri</h3>
-            <table>
-                <tr>
-                    <td>Aktivna godina</td>
-                    <td>
-                        <input ng-model="firma.aktivna_godina" />
-                    </td>
-                    <td>
-                        <span class="validation" ng-show="!validation.isAktivnaGodinaValid()">Neispravna godina</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="3">
-                        
-                    </td>
-                </tr>
-            </table>
-            <input value="Pohrani" type="button" ng-click="saveFirma()" />
+            <div class="card">
+                <div class="card-header">
+                    🏢 Podaci o poduzeću
+                </div>
+                <table>
+                    <tr>
+                        <td>Naziv</td>
+                        <td>
+                            <input ng-model="firma.naziv" style="width: 100%; max-width: 500px;" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Adresa</td>
+                        <td>
+                            <input ng-model="firma.adresa" style="width: 100%; max-width: 500px;" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Mjesto</td>
+                        <td>
+                            <input ng-model="firma.mjesto" style="width: 100%; max-width: 500px;" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>OIB</td>
+                        <td>
+                            <input ng-model="firma.oib" style="width: 100%; max-width: 500px;" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Žiro račun</td>
+                        <td>
+                            <input ng-model="firma.zr" style="width: 100%; max-width: 500px;" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    🔧 Programski parametri
+                </div>
+                <table>
+                    <tr>
+                        <td>Aktivna godina</td>
+                        <td>
+                            <input ng-model="firma.aktivna_godina" />
+                        </td>
+                        <td>
+                            <span class="validation" ng-show="!validation.isAktivnaGodinaValid()">⚠️ Neispravna godina</span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <input value="💾 Pohrani promjene" type="button" ng-click="saveFirma()" class="btn-success" style="font-size: 16px; padding: 14px 28px;" />
+            </div>
         </div>
     </div>
 

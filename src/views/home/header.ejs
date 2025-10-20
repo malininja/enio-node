@@ -3,27 +3,178 @@
   <title><%= title %></title>
   <%- include("styles") -%>
   <%- include("scripts") -%>
+  <style>
+    /* Modern Navigation Styling */
+    .modern-navbar {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        height: 70px;
+    }
+    
+    .modern-navbar .container {
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+    
+    .navbar-brand {
+        color: white;
+        font-size: 24px;
+        font-weight: 700;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        letter-spacing: 1px;
+    }
+    
+    .navbar-brand:hover {
+        color: #3498db;
+        text-decoration: none;
+    }
+    
+    .navbar-brand-icon {
+        width: 35px;
+        height: 35px;
+        background: linear-gradient(135deg, #3498db 0%, #1abc9c 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    
+    .modern-navbar .navbar-nav {
+        display: flex;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .modern-navbar .navbar-nav li {
+        margin: 0;
+    }
+    
+    .modern-navbar .navbar-nav a {
+        color: rgba(255, 255, 255, 0.9);
+        padding: 25px 20px;
+        display: block;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .modern-navbar .navbar-nav a:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #3498db 0%, #1abc9c 100%);
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+    }
+    
+    .modern-navbar .navbar-nav a:hover {
+        color: white;
+        background-color: rgba(52, 152, 219, 0.1);
+    }
+    
+    .modern-navbar .navbar-nav a:hover:after {
+        width: 80%;
+    }
+    
+    .modern-navbar .navbar-nav .active a {
+        background-color: rgba(52, 152, 219, 0.2);
+        color: white;
+    }
+    
+    .modern-navbar .navbar-nav .active a:after {
+        width: 80%;
+    }
+    
+    .navbar-toggle {
+        display: none;
+        background: none;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        padding: 8px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-left: auto;
+    }
+    
+    .navbar-toggle:hover {
+        border-color: white;
+    }
+    
+    .navbar-toggle .icon-bar {
+        display: block;
+        width: 22px;
+        height: 2px;
+        background-color: white;
+        margin: 4px 0;
+        transition: all 0.3s ease;
+    }
+    
+    @media (max-width: 768px) {
+        .navbar-toggle {
+            display: block;
+        }
+        
+        .modern-navbar .navbar-nav {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background: #2c3e50;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .modern-navbar .navbar-nav.show {
+            display: flex;
+        }
+        
+        .modern-navbar .navbar-nav a {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    }
+  </style>
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="modern-navbar">
         <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li><a href="/Home/racun-list">Računi</a></li>
-                    <li><a href="/Home/artikl">Artikl</a></li>
-                    <li><a href="/Home/partner">Partner</a></li>
-                    <li><a href="/Home/tarifa">Tarifa</a></li>
-                    <li><a href="/Home/pdv">PDV</a></li>
-                    <li><a href="/Home/firma">Postavke</a></li>
-                </ul>
-            </div>
+            <a href="/" class="navbar-brand">
+                <div class="navbar-brand-icon">E</div>
+                ENIO
+            </a>
+            <button type="button" class="navbar-toggle" onclick="document.querySelector('.navbar-nav').classList.toggle('show')">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <ul class="nav navbar-nav">
+                <li><a href="/Home/racun-list">📄 Računi</a></li>
+                <li><a href="/Home/artikl">📦 Artikl</a></li>
+                <li><a href="/Home/partner">🤝 Partner</a></li>
+                <li><a href="/Home/tarifa">💰 Tarifa</a></li>
+                <li><a href="/Home/pdv">📊 PDV</a></li>
+                <li><a href="/Home/firma">⚙️ Postavke</a></li>
+            </ul>
         </div>
-    </div>
+    </nav>
     <div class="container body-content">

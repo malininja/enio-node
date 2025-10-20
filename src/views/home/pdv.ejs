@@ -1,14 +1,16 @@
   <%- include("header") -%>
 
   <div>
-    <h2>Lista stopa PDV-a</h2>
+    <h2 style="margin-bottom: 25px; color: #2c3e50;">📊 Lista stopa PDV-a</h2>
 
-    <input style="font-size: 130%;" type="button" value="Dodaj novi PDV" onclick="openPdvDialogNew();" />
-    <br /><br />
+    <div class="action-buttons">
+        <input type="button" value="➕ Dodaj novi PDV" onclick="openPdvDialogNew();" class="btn-success" />
+    </div>
 
-	<table id="PdvTable"></table>
-	<div id="PdvTablePager"></div>	
-	<br /><br />
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <table id="PdvTable"></table>
+        <div id="PdvTablePager"></div>
+    </div>
 
     <div id="PdvInput" ng-app="enioApp">
         <div id="divNgController" ng-controller="PdvController">
