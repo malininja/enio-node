@@ -282,6 +282,17 @@ app.controller("RacunController", ["$scope", function ($scope) {
         $scope.calculateTotal();
     };
 
+    $scope.printPdf = function () {
+        if (!$scope.racunGlava.id) {
+            alert("Morate prvo pohraniti račun prije ispisa.");
+            return;
+        }
+
+        // Open PDF in a new window/tab
+        var pdfUrl = "/api/racun/" + $scope.racunGlava.id + "/pdf";
+        window.open(pdfUrl, '_blank');
+    };
+
     $(document).trigger("RacunControlerLoaded", $scope);
 
     return _me;

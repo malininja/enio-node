@@ -7,6 +7,7 @@ const brojacRepository = require('../brojac-module/brojac-repository');
 const racunRepository = require('./racun-repository');
 const firmaRepository = require('../firma-module/firma-repository');
 const tarifaRepository = require('../tarifa-module/tarifa-repository');
+const { generateInvoicePDF } = require('../../services/pdf-generator');
 
 async function get(req, res, next) {
   try {
@@ -161,4 +162,60 @@ async function save(req, res, next) {
   }
 }
 
-module.exports = { get, getAll, save };
+async function getPdf(req, res, next) {
+  try {
+    const { id } = req.params;
+    const racun = await racunRepository.get(id);
+
+    if (!racun) {
+      res.sendStatus(404);
+      return next();
+    }
+
+    // Fetch related data
+    const firma = await firmaRepository.get(racun.racunGlava.firma_id);
+    const partner = await knex('partner')
+      .where({ id: racun.racunGlava.partner_id })
+      .first();
+
+    // Fetch artikl data for each stavka
+    const stavkeWithArtikl = await Promise.all(
+      racun.racunStavkaCollection.map(async (stavka) => {
+        const artikl = await knex('artikl')
+          .where({ id: stavka.artikl_id })
+          .first();
+        return {
+          ...stavka,
+          artikl,
+        };
+      })
+    );
+
+    // Prepare data for PDF generation
+    const pdfData = {
+      racunGlava: racun.racunGlava,
+      racunStavkaCollection: stavkeWithArtikl,
+      firma,
+      partner,
+    };
+
+    // Generate PDF
+    const pdfDoc = generateInvoicePDF(pdfData);
+
+    // Set response headers
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `inline; filename="racun_${racun.racunGlava.broj_racuna}_${racun.racunGlava.godina}.pdf"`
+    );
+
+    // Stream PDF to response
+    pdfDoc.pipe(res);
+
+    return next();
+  } catch (error) {
+    return next(error);
+  }
+}
+
+module.exports = { get, getAll, save, getPdf };
